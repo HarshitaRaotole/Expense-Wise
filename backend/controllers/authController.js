@@ -27,6 +27,10 @@ exports.register = async (req, res) => {
       { expiresIn: '24h' }
     );
 
+    console.log("BREVO_USER:", process.env.BREVO_USER);
+console.log("BREVO_PASS:", process.env.BREVO_PASS);
+console.log("SENDER_EMAIL:", process.env.SENDER_EMAIL);
+
     const transporter = nodemailer.createTransport({
   host: "smtp-relay.brevo.com",
   port: 587,
@@ -56,9 +60,13 @@ exports.register = async (req, res) => {
       `,
     };
 
-    await transporter.sendMail(mailOptions);
+    await transporter.verify();
+console.log("SMTP connection successful");
+
+const info = await transporter.sendMail(mailOptions);
+console.log("EMAIL RESPONSE:", info);
     
-    // Notice: We haven't called User.save() yet!
+    
     res.status(200).json({ message: 'Verification link sent! Check your email to create your account.' });
 
   } catch (error) {

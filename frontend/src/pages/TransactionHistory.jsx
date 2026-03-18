@@ -170,46 +170,43 @@ const TransactionHistory = () => {
         .sortable-header:hover { color: #3b82f6; }
       `}</style>
 
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '25px', borderBottom: '1px solid #f1f5f9', backgroundColor: '#f8fafc' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '25px', borderBottom: '1px solid var(--border-color)' }}>
         <div>
-          <h2 style={{ margin: 0, color: '#1e293b' }}>📋 Transaction History</h2>
-          <p style={{ margin: '5px 0 0 0', color: '#64748b', fontSize: '14px' }}>Manage and track all your financial records.</p>
+          <h2 style={{ margin: 0, color: 'var(--text-main)' }}>📋 Transaction History</h2>
+          <p style={{ margin: '5px 0 0 0', color: 'var(--text-muted)', fontSize: '14px' }}>Manage and track all your financial records.</p>
         </div>
         <button onClick={() => setShowAddModal(true)} className="auth-button" style={{ width: 'auto', padding: '12px 24px', display: 'flex', alignItems: 'center', gap: '8px', borderRadius: '10px', boxShadow: '0 4px 10px rgba(59, 130, 246, 0.3)' }}>
           <span style={{ fontSize: '18px', fontWeight: 'bold' }}>+</span> Add Transaction
         </button>
       </div>
 
-      <div style={{ padding: '20px 25px', borderBottom: '1px solid #f1f5f9', display: 'flex', gap: '15px', flexWrap: 'wrap', backgroundColor: '#ffffff', alignItems: 'center' }}>
+      <div style={{ padding: '20px 25px', borderBottom: '1px solid var(--border-color)', display: 'flex', gap: '15px', flexWrap: 'wrap', alignItems: 'center' }}>
         
         <input 
           type="text" placeholder="🔍 Search descriptions..." 
           value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} 
-          style={{ flex: 2, minWidth: '200px', padding: '12px 15px', border: '1px solid #cbd5e1', borderRadius: '8px', outline: 'none', fontSize: '14px' }}
+          className="auth-input" style={{ flex: 2, minWidth: '200px', margin: 0 }}
         />
 
-        <select 
-          value={filterMonth} onChange={(e) => setFilterMonth(e.target.value)} 
-          style={{ flex: 1, minWidth: '150px', padding: '12px 15px', border: '1px solid #cbd5e1', borderRadius: '8px', outline: 'none', fontSize: '14px', backgroundColor: 'white', fontWeight: '600', color: '#475569' }}
-        >
+        <select value={filterMonth} onChange={(e) => setFilterMonth(e.target.value)} className="auth-select" style={{ flex: 1, minWidth: '150px', margin: 0 }}>
           <option value="">🗓️ All Months</option>
           {availableMonths.map(m => (
             <option key={m} value={m}>{formatMonthDisplay(m)}</option>
           ))}
         </select>
 
-        <select value={filterType} onChange={(e) => setFilterType(e.target.value)} style={{ flex: 1, minWidth: '130px', padding: '12px 15px', border: '1px solid #cbd5e1', borderRadius: '8px', outline: 'none', fontSize: '14px', backgroundColor: 'white', fontWeight: '600', color: '#475569' }}>
+        <select value={filterType} onChange={(e) => setFilterType(e.target.value)} className="auth-select" style={{ flex: 1, minWidth: '130px', margin: 0 }}>
           <option value="all">All Types</option>
           <option value="expense">📉 Expenses</option>
           <option value="income">📈 Incomes</option>
         </select>
 
-        <select value={filterCategory} onChange={(e) => setFilterCategory(e.target.value)} style={{ flex: 1, minWidth: '150px', padding: '12px 15px', border: '1px solid #cbd5e1', borderRadius: '8px', outline: 'none', fontSize: '14px', backgroundColor: 'white', fontWeight: '600', color: '#475569', textTransform: 'capitalize' }}>
+        <select value={filterCategory} onChange={(e) => setFilterCategory(e.target.value)} className="auth-select" style={{ flex: 1, minWidth: '150px', margin: 0, textTransform: 'capitalize' }}>
           <option value="all">All Categories</option>
           {categories.map(cat => <option key={cat._id} value={cat.name}>{cat.name}</option>)}
         </select>
 
-        <button onClick={resetFilters} style={{ padding: '12px 20px', background: '#f1f5f9', border: 'none', borderRadius: '8px', color: '#ef4444', fontWeight: 'bold', cursor: 'pointer', transition: '0.2s' }}>
+        <button onClick={resetFilters} style={{ padding: '12px 20px', background: 'var(--hover-bg)', border: 'none', borderRadius: '8px', color: '#ef4444', fontWeight: 'bold', cursor: 'pointer', transition: '0.2s' }}>
           Reset
         </button>
 
@@ -233,15 +230,17 @@ const TransactionHistory = () => {
           </thead>
           <tbody>
             {filteredTransactions.map((txn) => (
-              <tr key={txn._id}>
+              <tr key={txn._id} style={{ transition: 'background 0.2s' }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--hover-bg)'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}>
                 <td>{new Date(txn.date).toLocaleDateString('en-GB')}</td>
-                <td>{txn.description || '-'}</td>
-                <td>{txn.category?.name}</td>
-                <td>{txn.transactionType}</td>
-                <td>{txn.amount}</td>
-                <td style={{ textAlign: 'right' }}>
-                  <button onClick={() => handleEditClick(txn)}>Edit</button>
-                  <button onClick={() => handleDelete(txn._id)}>Delete</button>
+                <td>{txn.description || <span style={{color: 'var(--text-muted)'}}>-</span>}</td>
+                <td><span style={{ background: 'var(--hover-bg)', color: '#3b82f6', padding: '6px 10px', borderRadius: '6px', fontSize: '13px', fontWeight: '600', textTransform: 'capitalize' }}>{txn.category?.name}</span></td>
+                <td style={{ fontWeight: '700', fontSize: '13px', color: txn.transactionType === 'income' ? '#10b981' : '#ef4444' }}>{txn.transactionType.toUpperCase()}</td>
+                <td style={{ fontWeight: '700', color: txn.transactionType === 'income' ? '#10b981' : '#ef4444' }}>
+                  {txn.transactionType === 'income' ? '+' : '-'}₹{txn.amount.toLocaleString()}
+                </td>
+                <td style={{ textAlign: 'right', minWidth: '150px' }}>
+                  <button onClick={() => handleEditClick(txn)} className="btn-edit">Edit</button>
+                  <button onClick={() => handleDelete(txn._id)} className="btn-delete">Delete</button>
                 </td>
               </tr>
             ))}
@@ -249,24 +248,68 @@ const TransactionHistory = () => {
         </table>
       </div>
 
+      {/* --- RESTORED BEAUTIFUL MODAL --- */}
       {(showAddModal || isEditing) && (
         <div className="modal-overlay">
-          <div className="modal-content">
+          <div className="modal-content" style={{ maxWidth: '500px', padding: '35px', borderRadius: '24px' }}>
+            
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '25px' }}>
+              <div>
+                <h2 style={{ margin: 0, fontSize: '24px', fontWeight: '800', color: 'var(--text-main)' }}>
+                  {isEditing ? '✏️ Edit Transaction' : '➕ Record New Transaction'}
+                </h2>
+                <p style={{ color: 'var(--text-muted)', fontSize: '14px', marginTop: '6px' }}>Fill in the details below to track your spending.</p>
+              </div>
+              <button onClick={closeModals} style={{ background: 'var(--hover-bg)', border: 'none', width: '36px', height: '36px', borderRadius: '50%', fontSize: '18px', cursor: 'pointer', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
+            </div>
+            
             <form onSubmit={isEditing ? handleUpdateSubmit : handleAddSubmit}>
-              <input type="number" value={formData.amount} onChange={(e) => setFormData({...formData, amount: e.target.value})} required />
-              <select value={formData.categoryName} onChange={(e) => setFormData({...formData, categoryName: e.target.value})}>
-                {categories.map((cat) => (
-                  <option key={cat._id} value={cat.name}>{cat.name}</option>
-                ))}
-              </select>
-              <input type="text" value={formData.description} onChange={(e) => setFormData({...formData, description: e.target.value})} />
-              <input type="date" value={formData.date} onChange={(e) => setFormData({...formData, date: e.target.value})} />
-              <select value={formData.transactionType} onChange={(e) => setFormData({...formData, transactionType: e.target.value})}>
-                <option value="expense">Expense</option>
-                <option value="income">Income</option>
-              </select>
-              <button type="submit">{isEditing ? 'Update' : 'Add'}</button>
+              
+              <label style={{fontWeight: 'bold', fontSize: '12px', color: 'var(--text-muted)'}}>Amount (₹)</label>
+              <input type="number" name="amount" value={formData.amount} onChange={(e) => setFormData({...formData, amount: e.target.value})} className="auth-input" style={{ padding: '16px', fontSize: '16px' }} required />
+              
+              <label style={{fontWeight: 'bold', fontSize: '12px', color: 'var(--text-muted)'}}>Category</label>
+              <div style={{ marginBottom: '15px' }}>
+                {isAddingCategory ? (
+                  <div style={{ display: 'flex', gap: '10px' }}>
+                    <input type="text" placeholder="Enter new category name..." value={newCategoryName} onChange={(e) => setNewCategoryName(e.target.value)} className="auth-input" style={{ margin: 0, flex: 1, padding: '16px', fontSize: '16px' }} autoFocus />
+                    <button type="button" onClick={handleSaveCustomCategory} style={{ background: '#10b981', color: 'white', border: 'none', borderRadius: '8px', padding: '0 20px', fontWeight: 'bold', cursor: 'pointer' }}>Save</button>
+                    <button type="button" onClick={() => setIsAddingCategory(false)} style={{ background: 'var(--hover-bg)', color: 'var(--text-muted)', border: 'none', borderRadius: '8px', padding: '0 20px', fontWeight: 'bold', cursor: 'pointer' }}>Cancel</button>
+                  </div>
+                ) : (
+                  <>
+                    <select name="categoryName" value={formData.categoryName} onChange={(e) => setFormData({...formData, categoryName: e.target.value})} className="auth-select" style={{ padding: '16px', fontSize: '16px', textTransform: 'capitalize', marginBottom: '10px' }} required>
+                      {categories.map((cat) => (
+                        <option key={cat._id} value={cat.name}>{cat.name}</option>
+                      ))}
+                    </select>
+                    <button type="button" className="add-category-btn" onClick={() => setIsAddingCategory(true)}>+ Add Custom Category</button>
+                  </>
+                )}
+              </div>
+
+              <label style={{fontWeight: 'bold', fontSize: '12px', color: 'var(--text-muted)'}}>Description (Optional)</label>
+              <input type="text" name="description" value={formData.description} onChange={(e) => setFormData({...formData, description: e.target.value})} className="auth-input" style={{ padding: '16px', fontSize: '16px' }} />
+              
+              <div style={{ display: 'flex', gap: '15px' }}>
+                <div style={{ flex: 1 }}>
+                  <label style={{fontWeight: 'bold', fontSize: '12px', color: 'var(--text-muted)'}}>Date</label>
+                  <input type="date" name="date" value={formData.date} onChange={(e) => setFormData({...formData, date: e.target.value})} className="auth-input" style={{ padding: '16px', fontSize: '16px' }} />
+                </div>
+                <div style={{ flex: 1 }}>
+                  <label style={{fontWeight: 'bold', fontSize: '12px', color: 'var(--text-muted)'}}>Type</label>
+                  <select name="transactionType" value={formData.transactionType} onChange={(e) => setFormData({...formData, transactionType: e.target.value})} className="auth-select" style={{ padding: '16px', fontSize: '16px', fontWeight: '600' }}>
+                    <option value="expense">Expense</option>
+                    <option value="income">Income</option>
+                  </select>
+                </div>
+              </div>
+
+              <button type="submit" className="auth-button" style={{ padding: '16px', fontSize: '16px', borderRadius: '12px', marginTop: '10px', boxShadow: '0 4px 10px rgba(59, 130, 246, 0.3)' }}>
+                {isEditing ? 'Save Changes' : 'Save Transaction'}
+              </button>
             </form>
+
           </div>
         </div>
       )}

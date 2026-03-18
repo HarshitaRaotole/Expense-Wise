@@ -81,9 +81,13 @@ exports.sendOverspendingEmail = async (userEmail, categoryName, spent, calculate
       </div>
       `
     };
-    await transporter.sendMail(mailOptions);
+   await transporter.verify();
+console.log("SMTP connection successful");
+
+const info = await transporter.sendMail(mailOptions);
+console.log("EMAIL RESPONSE:", info);
   } catch (error) { 
-    console.error('Error sending email:', error.message); 
+    console.error('FULL EMAIL ERROR:', error);
   }
 };
 
@@ -111,6 +115,10 @@ exports.sendBudgetExceededEmail = async (userEmail, categoryName, spent, budgetL
       </div>
       `
     };
-    await transporter.sendMail(mailOptions);
-  } catch (error) { console.error('Error sending email:', error.message); }
+    await transporter.verify();
+console.log("SMTP connection successful");
+
+const info = await transporter.sendMail(mailOptions);
+console.log("EMAIL RESPONSE:", info);
+  } catch (error) { console.error('FULL EMAIL ERROR:', error); }
 };
