@@ -188,3 +188,133 @@ body { background-color: var(--bg-main); color: var(--text-main); transition: ba
 /* Auth Pages */
 .auth-page { display: flex; justify-content: center; align-items: center; height: 100%; }
 .auth-container { background: white; padding: 40px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); width: 100%; max-width: 420px; text-align: center; border: 1px solid #f1f5f9; }
+
+
+
+/* ================= RESPONSIVE FIX ================= */
+
+/* Make everything flexible */
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Fix page padding for smaller screens */
+@media (max-width: 1024px) {
+  .page-content {
+    padding: 20px;
+  }
+}
+
+/* 📱 TABLET */
+@media (max-width: 768px) {
+
+  .page-content {
+    padding: 15px;
+  }
+
+  .card {
+    padding: 15px;
+  }
+
+  /* Navbar */
+  .navbar {
+    padding: 0 15px;
+  }
+
+  /* Sidebar width adjust */
+  .sidebar {
+    width: 240px;
+  }
+
+  /* Summary cards stack */
+  .summary-container {
+    flex-direction: column;
+  }
+
+  .summary-card {
+    width: 100%;
+  }
+
+  /* Grid responsive */
+  .dashboard-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+
+  /* Forms */
+  .auth-container {
+    padding: 20px;
+    width: 100%;
+  }
+
+  /* Modal */
+  .modal-content {
+    width: 90%;
+    max-width: 400px;
+    padding: 20px;
+  }
+}
+
+/* 📱 MOBILE */
+@media (max-width: 480px) {
+
+  h1 {
+    font-size: 22px;
+  }
+
+  h2 {
+    font-size: 18px;
+  }
+
+  h3 {
+    font-size: 16px;
+  }
+
+  p {
+    font-size: 13px;
+  }
+
+  /* Buttons */
+  .auth-button {
+    font-size: 14px;
+    padding: 10px;
+  }
+
+  /* Table scroll */
+  .transaction-table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+
+  /* Reduce spacing */
+  .card {
+    padding: 12px;
+  }
+
+  /* Inputs */
+  .auth-input {
+    padding: 10px;
+    font-size: 14px;
+  }
+
+  /* Sidebar full width */
+  .sidebar {
+    width: 100%;
+  }
+}
+
+/* FORCE RESPONSIVE CONTAINER */
+.page-content {
+  width: 100%;
+  max-width: 100%;
+}
+
+/* FLEX WRAP FIX */
+.summary-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
