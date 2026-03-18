@@ -35,7 +35,7 @@ exports.register = async (req, res) => {
       },
     });
 
-    const verificationUrl = `http://localhost:3000/verify-email/${registrationToken}`;
+    const verificationUrl = `https://expense-wise-theta.vercel.app/verify-email/${registrationToken}`;
     
     const mailOptions = {
       from: `"ExpenseWise" <${process.env.EMAIL_USER}>`,
@@ -107,8 +107,8 @@ exports.verifyEmail = async (req, res) => {
     const accessToken = jwt.sign({ userId: newUser._id, email: newUser.email }, process.env.JWT_SECRET, { expiresIn: '15m' });
     const refreshToken = jwt.sign({ userId: newUser._id, email: newUser.email }, process.env.JWT_REFRESH_SECRET, { expiresIn: '7d' });
 
-    res.cookie('accessToken', accessToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'strict', maxAge: 15 * 60 * 1000 });
-    res.cookie('refreshToken', refreshToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'strict', maxAge: 7 * 24 * 60 * 60 * 1000 });
+    res.cookie('accessToken', accessToken, { httpOnly: true, secure: 'true', sameSite: 'none', maxAge: 15 * 60 * 1000 });
+    res.cookie('refreshToken', refreshToken, { httpOnly: true, secure: 'true', sameSite: 'none', maxAge: 7 * 24 * 60 * 60 * 1000 });
 
     res.status(201).json({ 
       message: 'Email verified and account created successfully!',
@@ -137,8 +137,8 @@ exports.login = async (req, res) => {
     const accessToken = jwt.sign({ userId: user._id, email: user.email }, process.env.JWT_SECRET, { expiresIn: '15m' });
     const refreshToken = jwt.sign({ userId: user._id, email: user.email }, process.env.JWT_REFRESH_SECRET, { expiresIn: '7d' });
 
-    res.cookie('accessToken', accessToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'strict', maxAge: 15 * 60 * 1000 });
-    res.cookie('refreshToken', refreshToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'strict', maxAge: 7 * 24 * 60 * 60 * 1000 });
+    res.cookie('accessToken', accessToken, { httpOnly: true, secure: 'true', sameSite: 'none', maxAge: 15 * 60 * 1000 });
+    res.cookie('refreshToken', refreshToken, { httpOnly: true, secure: 'true', sameSite: 'none', maxAge: 7 * 24 * 60 * 60 * 1000 });
 
     res.status(200).json({ message: 'Login successful', user: { id: user._id, name: user.name, email: user.email } });
   } catch (error) {
@@ -154,7 +154,7 @@ exports.refreshAccessToken = (req, res) => {
   jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET, (err, decoded) => {
     if (err) return res.status(403).json({ message: 'Invalid token' });
     const newAccessToken = jwt.sign({ userId: decoded.userId }, process.env.JWT_SECRET, { expiresIn: '15m' });
-    res.cookie('accessToken', newAccessToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'strict', maxAge: 15 * 60 * 1000 });
+    res.cookie('accessToken', newAccessToken, { httpOnly: true, secure: 'true', sameSite: 'none', maxAge: 15 * 60 * 1000 });
     res.status(200).json({ message: 'Refreshed' });
   });
 };

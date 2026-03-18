@@ -64,7 +64,7 @@ exports.sendOverspendingEmail = async (userEmail, categoryName, spent, calculate
           
           <!-- Call to Action -->
           <div style="text-align: center;">
-            <a href="http://localhost:3000/dashboard" style="background: #3b82f6; color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block; box-shadow: 0 4px 6px rgba(59, 130, 246, 0.25); transition: background 0.3s;">
+            <a href="https://expense-wise-theta.vercel.app/dashboard" style="background: #3b82f6; color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block; box-shadow: 0 4px 6px rgba(59, 130, 246, 0.25); transition: background 0.3s;">
               Review Your Dashboard
             </a>
           </div>
