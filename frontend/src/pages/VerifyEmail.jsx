@@ -4,6 +4,8 @@ import axios from 'axios';
 import { useAuth } from '../context/AuthContext'; 
 import toast from 'react-hot-toast';
 
+axios.defaults.withCredentials = true;
+
 const VerifyEmail = () => {
   const { token } = useParams();
   const navigate = useNavigate();
@@ -17,8 +19,8 @@ const VerifyEmail = () => {
 
     const verifyToken = async () => {
       try {
-        const res = await axios.get(`http://localhost:5000/api/auth/verify-email/${token}`);
-        
+        const API = process.env.REACT_APP_API_URL;
+        const res = await axios.get(`${API}/api/auth/verify-email/${token}`, { withCredentials: true });
         
         login(res.data.user); 
         

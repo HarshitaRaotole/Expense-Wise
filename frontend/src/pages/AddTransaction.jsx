@@ -20,14 +20,14 @@ const AddTransaction = () => {
 
   const navigate = useNavigate();
 
-  // Fetch categories when page loads
   useEffect(() => {
     fetchCategories();
   }, []);
 
   const fetchCategories = async () => {
     try {
-      const res = await axios.get('http://localhost:5000/api/categories');
+      const API = process.env.REACT_APP_API_URL;
+      const res = await axios.get(`${API}/api/categories`, { withCredentials: true });
       setCategories(res.data);
 
       if (res.data.length > 0 && !formData.categoryName) {
@@ -42,7 +42,6 @@ const AddTransaction = () => {
     }
   };
 
-  // Allow date up to 5 days in future
   const getMaxDate = () => {
     const date = new Date();
     date.setDate(date.getDate() + 5);
@@ -56,7 +55,6 @@ const AddTransaction = () => {
     });
   };
 
-  // Add custom category
   const handleAddCustomCategory = async () => {
 
     if (newCategory.trim() === '') {
@@ -66,15 +64,16 @@ const AddTransaction = () => {
 
     try {
 
+      const API = process.env.REACT_APP_API_URL;
+
       const res = await axios.post(
-        'http://localhost:5000/api/categories',
-        { name: newCategory }
+        `${API}/api/categories`,
+        { name: newCategory },
+        { withCredentials: true }
       );
 
-      
       setCategories([...categories, res.data]);
 
-      
       setFormData({
         ...formData,
         categoryName: res.data.name
@@ -88,7 +87,6 @@ const AddTransaction = () => {
     }
   };
 
-  // Submit transaction
   const handleSubmit = async (e) => {
 
     e.preventDefault();
@@ -101,9 +99,12 @@ const AddTransaction = () => {
         delete dataToSend.date;
       }
 
+      const API = process.env.REACT_APP_API_URL;
+
       await axios.post(
-        'http://localhost:5000/api/transactions',
-        dataToSend
+        `${API}/api/transactions`,
+        dataToSend,
+        { withCredentials: true }
       );
 
       alert('Transaction Added Successfully!');
@@ -123,7 +124,6 @@ const AddTransaction = () => {
 
       <form onSubmit={handleSubmit}>
 
-        {/* Amount */}
         <input
           type="number"
           name="amount"
@@ -134,7 +134,6 @@ const AddTransaction = () => {
           required
         />
 
-        {/* Category Dropdown */}
         <select
           name="categoryName"
           value={formData.categoryName}
@@ -153,7 +152,6 @@ const AddTransaction = () => {
 
         </select>
 
-        {/* Add Category Button */}
         <button
           type="button"
           className="add-category-btn"
@@ -162,7 +160,6 @@ const AddTransaction = () => {
           + Add Custom Category
         </button>
 
-        {/* Description */}
         <input
           type="text"
           name="description"
@@ -172,7 +169,6 @@ const AddTransaction = () => {
           className="auth-input"
         />
 
-        {/* Date */}
         <input
           type="date"
           name="date"
@@ -182,7 +178,6 @@ const AddTransaction = () => {
           className="auth-input"
         />
 
-        {/* Transaction Type */}
         <select
           name="transactionType"
           value={formData.transactionType}
@@ -193,7 +188,6 @@ const AddTransaction = () => {
           <option value="income">Income</option>
         </select>
 
-        {/* Submit */}
         <button
           type="submit"
           className="auth-button"
@@ -203,7 +197,6 @@ const AddTransaction = () => {
 
       </form>
 
-      {/* Custom Category Modal */}
       {showCategoryModal && (
 
         <div className="modal-overlay">

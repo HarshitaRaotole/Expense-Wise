@@ -8,16 +8,13 @@ const TransactionHistory = () => {
   const [transactions, setTransactions] = useState([]);
   const [categories, setCategories] = useState([]);
 
-  //  FILTER STATES 
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState('all');
   const [filterCategory, setFilterCategory] = useState('all');
   const [filterMonth, setFilterMonth] = useState(''); 
   
-  // SORT STATE 
   const [sortConfig, setSortConfig] = useState({ key: 'date', direction: 'desc' });
 
-  // Modals & States
   const [showAddModal, setShowAddModal] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editId, setEditId] = useState(null);
@@ -32,14 +29,16 @@ const TransactionHistory = () => {
 
   const fetchTransactions = async () => {
     try {
-      const res = await axios.get('http://localhost:5000/api/transactions');
+      const API = process.env.REACT_APP_API_URL;
+      const res = await axios.get(`${API}/api/transactions`, { withCredentials: true });
       setTransactions(res.data);
     } catch (error) { toast.error("Failed to fetch transactions"); }
   };
 
   const fetchCategories = async () => {
     try {
-      const res = await axios.get('http://localhost:5000/api/categories');
+      const API = process.env.REACT_APP_API_URL;
+      const res = await axios.get(`${API}/api/categories`, { withCredentials: true });
       setCategories(res.data);
       if (res.data.length > 0) setFormData(prev => ({ ...prev, categoryName: res.data[0].name }));
     } catch (error) { toast.error("Failed to fetch categories"); }
@@ -52,7 +51,6 @@ const TransactionHistory = () => {
     return date.toLocaleString('default', { month: 'long', year: 'numeric' }); 
   };
 
-  // SMART FILTER & TABLE SORTING LOGIC 
   const filteredTransactions = transactions
     .filter((txn) => {
       const matchesSearch = (txn.description || '').toLowerCase().includes(searchTerm.toLowerCase()) || 
@@ -63,7 +61,6 @@ const TransactionHistory = () => {
       return matchesSearch && matchesType && matchesCategory && matchesMonth;
     })
     .sort((a, b) => {
-      
       if (sortConfig.key === 'date') {
         return sortConfig.direction === 'asc' ? new Date(a.date) - new Date(b.date) : new Date(b.date) - new Date(a.date);
       } else if (sortConfig.key === 'amount') {
@@ -72,7 +69,6 @@ const TransactionHistory = () => {
       return 0;
     });
 
-  
   const requestSort = (key) => {
     let direction = 'desc';
     if (sortConfig.key === key && sortConfig.direction === 'desc') direction = 'asc';
@@ -84,13 +80,14 @@ const TransactionHistory = () => {
     setFilterType('all'); 
     setFilterCategory('all'); 
     setFilterMonth(''); 
-    setSortConfig({ key: 'date', direction: 'desc' }); // Reset sort to default
+    setSortConfig({ key: 'date', direction: 'desc' });
   };
 
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this transaction?')) {
       try {
-        await axios.delete(`http://localhost:5000/api/transactions/${id}`);
+        const API = process.env.REACT_APP_API_URL;
+        await axios.delete(`${API}/api/transactions/${id}`, { withCredentials: true });
         toast.success("Transaction deleted!");
         fetchTransactions();
       } catch (error) { toast.error('Failed to delete transaction'); }
@@ -102,7 +99,10 @@ const TransactionHistory = () => {
     try {
       const dataToSend = { ...formData };
       if (!dataToSend.date) delete dataToSend.date;
-      await axios.post('http://localhost:5000/api/transactions', dataToSend);
+
+      const API = process.env.REACT_APP_API_URL;
+      await axios.post(`${API}/api/transactions`, dataToSend, { withCredentials: true });
+
       toast.success("Transaction Added Successfully! 🎉");
       closeModals(); fetchTransactions(); 
     } catch (error) { toast.error(error.response?.data?.message || "Error adding transaction"); }
@@ -120,45 +120,42 @@ const TransactionHistory = () => {
   const handleUpdateSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.put(`http://localhost:5000/api/transactions/${editId}`, formData);
+      const API = process.env.REACT_APP_API_URL;
+      await axios.put(`${API}/api/transactions/${editId}`, formData, { withCredentials: true });
       toast.success("Transaction Updated! ✏️");
       closeModals(); fetchTransactions(); 
     } catch (error) { toast.error('Failed to update transaction'); }
   };
 
   const handleSaveCustomCategory = async (e) => {
-  e.preventDefault();
-  
-  const trimmedName = newCategoryName.trim();
-  if (!trimmedName) return toast.error("Category name required");
-
-  
-  const isDuplicate = categories.some(
-    (cat) => cat.name.toLowerCase() === trimmedName.toLowerCase()
-  );
-
-  if (isDuplicate) {
-    return toast.error(`"${trimmedName}" already exists!`);
-  }
-
-  try {
-    const res = await axios.post('http://localhost:5000/api/categories', { 
-      name: trimmedName 
-    });
-
+    e.preventDefault();
     
-    setCategories([...categories, res.data]);
-    setFormData({ ...formData, categoryName: res.data.name }); 
-    setNewCategoryName('');
-    setIsAddingCategory(false);
-    toast.success("Category Added!");
+    const trimmedName = newCategoryName.trim();
+    if (!trimmedName) return toast.error("Category name required");
 
-  } catch (error) {
-    
-    const serverMessage = error.response?.data?.message || "Failed to add category";
-    toast.error(serverMessage); 
-  }
-};
+    const isDuplicate = categories.some(
+      (cat) => cat.name.toLowerCase() === trimmedName.toLowerCase()
+    );
+
+    if (isDuplicate) {
+      return toast.error(`"${trimmedName}" already exists!`);
+    }
+
+    try {
+      const API = process.env.REACT_APP_API_URL;
+      const res = await axios.post(`${API}/api/categories`, { name: trimmedName }, { withCredentials: true });
+
+      setCategories([...categories, res.data]);
+      setFormData({ ...formData, categoryName: res.data.name }); 
+      setNewCategoryName('');
+      setIsAddingCategory(false);
+      toast.success("Category Added!");
+
+    } catch (error) {
+      const serverMessage = error.response?.data?.message || "Failed to add category";
+      toast.error(serverMessage); 
+    }
+  };
 
   const closeModals = () => {
     setShowAddModal(false); setIsEditing(false); setIsAddingCategory(false);
@@ -173,7 +170,6 @@ const TransactionHistory = () => {
         .sortable-header:hover { color: #3b82f6; }
       `}</style>
 
-      {/* HEADER SECTION */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '25px', borderBottom: '1px solid #f1f5f9', backgroundColor: '#f8fafc' }}>
         <div>
           <h2 style={{ margin: 0, color: '#1e293b' }}>📋 Transaction History</h2>
@@ -184,7 +180,6 @@ const TransactionHistory = () => {
         </button>
       </div>
 
-      {/* DROPDOWN FILTERS  */}
       <div style={{ padding: '20px 25px', borderBottom: '1px solid #f1f5f9', display: 'flex', gap: '15px', flexWrap: 'wrap', backgroundColor: '#ffffff', alignItems: 'center' }}>
         
         <input 
@@ -220,18 +215,17 @@ const TransactionHistory = () => {
 
       </div>
 
-   
       <div style={{ overflowX: 'auto', padding: '10px 25px 25px 25px' }}>
         <table className="transaction-table">
           <thead>
             <tr>
-              <th className="sortable-header" onClick={() => requestSort('date')} title="Click to sort by date">
+              <th className="sortable-header" onClick={() => requestSort('date')}>
                 Date {sortConfig.key === 'date' ? (sortConfig.direction === 'asc' ? '↑' : '↓') : '↕'}
               </th>
               <th>Description</th>
               <th>Category</th>
               <th>Type</th>
-              <th className="sortable-header" onClick={() => requestSort('amount')} title="Click to sort by amount">
+              <th className="sortable-header" onClick={() => requestSort('amount')}>
                 Amount {sortConfig.key === 'amount' ? (sortConfig.direction === 'asc' ? '↑' : '↓') : '↕'}
               </th>
               <th style={{ textAlign: 'right' }}>Actions</th>
@@ -239,85 +233,39 @@ const TransactionHistory = () => {
           </thead>
           <tbody>
             {filteredTransactions.map((txn) => (
-              <tr key={txn._id} style={{ transition: 'background 0.2s' }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f8fafc'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}>
-                <td>{new Date(txn.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</td>
-                <td>{txn.description || <span style={{color: '#cbd5e1'}}>-</span>}</td>
-                <td><span style={{ background: '#eff6ff', color: '#3b82f6', padding: '6px 10px', borderRadius: '6px', fontSize: '13px', fontWeight: '600', textTransform: 'capitalize' }}>{txn.category?.name}</span></td>
-                <td style={{ fontWeight: '700', fontSize: '13px', color: txn.transactionType === 'income' ? '#10b981' : '#ef4444' }}>{txn.transactionType.toUpperCase()}</td>
-                <td style={{ fontWeight: '700', color: txn.transactionType === 'income' ? '#10b981' : '#ef4444' }}>
-                  {txn.transactionType === 'income' ? '+' : '-'}₹{txn.amount.toLocaleString()}
-                </td>
-                <td style={{ textAlign: 'right', minWidth: '150px' }}>
-                  <button onClick={() => handleEditClick(txn)} className="btn-edit">Edit</button>
-                  <button onClick={() => handleDelete(txn._id)} className="btn-delete">Delete</button>
+              <tr key={txn._id}>
+                <td>{new Date(txn.date).toLocaleDateString('en-GB')}</td>
+                <td>{txn.description || '-'}</td>
+                <td>{txn.category?.name}</td>
+                <td>{txn.transactionType}</td>
+                <td>{txn.amount}</td>
+                <td style={{ textAlign: 'right' }}>
+                  <button onClick={() => handleEditClick(txn)}>Edit</button>
+                  <button onClick={() => handleDelete(txn._id)}>Delete</button>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
-        
-        {filteredTransactions.length === 0 && (
-          <div style={{ textAlign: 'center', padding: '60px', color: '#64748b' }}>
-            <div style={{ fontSize: '50px', marginBottom: '15px' }}>📭</div>
-            <h3 style={{ color: '#1e293b', marginBottom: '5px' }}>No matching transactions</h3>
-            <p>Try adjusting your search or filters.</p>
-          </div>
-        )}
       </div>
 
-      {/* --- ADD / EDIT MODAL --- */}
       {(showAddModal || isEditing) && (
         <div className="modal-overlay">
-          <div className="modal-content" style={{ maxWidth: '500px', padding: '35px', borderRadius: '24px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '25px' }}>
-              <div>
-                <h2 style={{ margin: 0, fontSize: '24px', fontWeight: '800', color: '#0f172a' }}>
-                  {isEditing ? '✏️ Edit Transaction' : '➕ Record New Transaction'}
-                </h2>
-                <p style={{ color: '#64748b', fontSize: '14px', marginTop: '6px' }}>Fill in the details below to track your spending.</p>
-              </div>
-              <button onClick={closeModals} style={{ background: '#f1f5f9', border: 'none', width: '36px', height: '36px', borderRadius: '50%', fontSize: '18px', cursor: 'pointer', color: '#64748b', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
-            </div>
-            
+          <div className="modal-content">
             <form onSubmit={isEditing ? handleUpdateSubmit : handleAddSubmit}>
-              <input type="number" name="amount" placeholder="Amount (₹)" value={formData.amount} onChange={(e) => setFormData({...formData, amount: e.target.value})} className="auth-input" style={{ padding: '16px', fontSize: '16px' }} required />
-              
-              <div style={{ marginBottom: '15px' }}>
-                {isAddingCategory ? (
-                  <div style={{ display: 'flex', gap: '10px' }}>
-                    <input type="text" placeholder="Enter new category name..." value={newCategoryName} onChange={(e) => setNewCategoryName(e.target.value)} className="auth-input" style={{ margin: 0, flex: 1, padding: '16px', fontSize: '16px' }} autoFocus />
-                    <button type="button" onClick={handleSaveCustomCategory} style={{ background: '#10b981', color: 'white', border: 'none', borderRadius: '8px', padding: '0 20px', fontWeight: 'bold', cursor: 'pointer' }}>Save</button>
-                    <button type="button" onClick={() => setIsAddingCategory(false)} style={{ background: '#f1f5f9', color: '#64748b', border: 'none', borderRadius: '8px', padding: '0 20px', fontWeight: 'bold', cursor: 'pointer' }}>Cancel</button>
-                  </div>
-                ) : (
-                  <>
-                    <select name="categoryName" value={formData.categoryName} onChange={(e) => setFormData({...formData, categoryName: e.target.value})} className="auth-input" style={{ padding: '16px', fontSize: '16px', textTransform: 'capitalize', marginBottom: '10px' }} required>
-                      {categories.map((cat) => (
-                        <option key={cat._id} value={cat.name}>{cat.name}</option>
-                      ))}
-                    </select>
-                    <button type="button" className="add-category-btn" onClick={() => setIsAddingCategory(true)}>+ Add Custom Category</button>
-                  </>
-                )}
-              </div>
-
-              <input type="text" name="description" placeholder="Description (Optional)" value={formData.description} onChange={(e) => setFormData({...formData, description: e.target.value})} className="auth-input" style={{ padding: '16px', fontSize: '16px' }} />
-              
-              <div style={{ display: 'flex', gap: '15px' }}>
-                <div style={{ flex: 1 }}>
-                  <input type="date" name="date" value={formData.date} onChange={(e) => setFormData({...formData, date: e.target.value})} className="auth-input" style={{ padding: '16px', fontSize: '16px' }} />
-                </div>
-                <div style={{ flex: 1 }}>
-                  <select name="transactionType" value={formData.transactionType} onChange={(e) => setFormData({...formData, transactionType: e.target.value})} className="auth-input" style={{ padding: '16px', fontSize: '16px', fontWeight: '600' }}>
-                    <option value="expense">Expense</option>
-                    <option value="income">Income</option>
-                  </select>
-                </div>
-              </div>
-
-              <button type="submit" className="auth-button" style={{ padding: '16px', fontSize: '16px', borderRadius: '12px', marginTop: '10px', boxShadow: '0 4px 10px rgba(59, 130, 246, 0.3)' }}>
-                {isEditing ? 'Save Changes' : 'Save Transaction'}
-              </button>
+              <input type="number" value={formData.amount} onChange={(e) => setFormData({...formData, amount: e.target.value})} required />
+              <select value={formData.categoryName} onChange={(e) => setFormData({...formData, categoryName: e.target.value})}>
+                {categories.map((cat) => (
+                  <option key={cat._id} value={cat.name}>{cat.name}</option>
+                ))}
+              </select>
+              <input type="text" value={formData.description} onChange={(e) => setFormData({...formData, description: e.target.value})} />
+              <input type="date" value={formData.date} onChange={(e) => setFormData({...formData, date: e.target.value})} />
+              <select value={formData.transactionType} onChange={(e) => setFormData({...formData, transactionType: e.target.value})}>
+                <option value="expense">Expense</option>
+                <option value="income">Income</option>
+              </select>
+              <button type="submit">{isEditing ? 'Update' : 'Add'}</button>
             </form>
           </div>
         </div>

@@ -8,7 +8,8 @@ const Sidebar = ({ user, isOpen, closeSidebar }) => {
 
   const handleLogout = async () => {
     try {
-      await axios.post('http://localhost:5000/api/auth/logout');
+      const API = process.env.REACT_APP_API_URL;
+      await axios.post(`${API}/api/auth/logout`, {}, { withCredentials: true });
       localStorage.removeItem('user'); 
       toast.success("Logged out successfully");
       setTimeout(() => window.location.href = '/login', 1000);
@@ -17,7 +18,7 @@ const Sidebar = ({ user, isOpen, closeSidebar }) => {
     }
   };
 
-  if (!user) return null; // Prevent crash if user object isn't loaded
+  if (!user) return null; 
 
   return (
     <div className={`sidebar ${isOpen ? 'open' : ''}`}>

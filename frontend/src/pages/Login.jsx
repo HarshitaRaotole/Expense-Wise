@@ -10,7 +10,6 @@ const Login = () => {
   const [error, setError] = useState('');
   const navigate = useNavigate();
   
-  
   const { login } = useAuth(); 
 
   const handleChange = (e) => {
@@ -22,12 +21,15 @@ const Login = () => {
     setError('');
     
     try {
-      const response = await axios.post('http://localhost:5000/api/auth/login', formData);
+      const API = process.env.REACT_APP_API_URL;
+
+      const response = await axios.post(
+        `${API}/api/auth/login`,
+        formData,
+        { withCredentials: true }
+      );
       
-     
       login(response.data.user); 
-      
-      
       navigate('/dashboard'); 
       
     } catch (err) {
@@ -57,12 +59,12 @@ const Login = () => {
         <form onSubmit={handleSubmit}>
           <div style={{ marginBottom: '20px', textAlign: 'left' }}>
             <label style={{ fontWeight: '700', fontSize: '13px', color: 'var(--text-muted)', display: 'block', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Email Address</label>
-            <input type="email" name="email" placeholder="" onChange={handleChange} className="auth-input" style={{ padding: '15px', fontSize: '15px', margin: 0 }} required />
+            <input type="email" name="email" onChange={handleChange} className="auth-input" style={{ padding: '15px', fontSize: '15px', margin: 0 }} required />
           </div>
 
           <div style={{ marginBottom: '30px', textAlign: 'left' }}>
             <label style={{ fontWeight: '700', fontSize: '13px', color: 'var(--text-muted)', display: 'block', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Password</label>
-            <input type="password" name="password" placeholder="" onChange={handleChange} className="auth-input" style={{ padding: '15px', fontSize: '15px', margin: 0 }} required />
+            <input type="password" name="password" onChange={handleChange} className="auth-input" style={{ padding: '15px', fontSize: '15px', margin: 0 }} required />
           </div>
 
           <button type="submit" className="auth-button" style={{ padding: '16px', fontSize: '16px', borderRadius: '12px', boxShadow: '0 4px 10px rgba(59, 130, 246, 0.3)' }}>

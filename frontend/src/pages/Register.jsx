@@ -3,6 +3,8 @@ import axios from 'axios';
 import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
 
+axios.defaults.withCredentials = true;
+
 const Register = () => {
   const [formData, setFormData] = useState({ name: '', email: '', password: '' });
   const [loading, setLoading] = useState(false);
@@ -31,7 +33,11 @@ const Register = () => {
     if (!isValid) return toast.error("Password too weak!");
     setLoading(true);
     try {
-      await axios.post('http://localhost:5000/api/auth/register', formData);
+      await axios.post(
+        `${process.env.REACT_APP_API_URL}/api/auth/register`,
+        formData,
+        { withCredentials: true }
+      );
       setIsSent(true);
       toast.success("Verification email sent!");
     } catch (err) {

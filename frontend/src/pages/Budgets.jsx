@@ -24,7 +24,8 @@ const Budgets = () => {
 
   const fetchCategories = async () => {
     try {
-      const res = await axios.get('http://localhost:5000/api/categories');
+      const API = process.env.REACT_APP_API_URL;
+      const res = await axios.get(`${API}/api/categories`, { withCredentials: true });
       setCategories(res.data);
       if (res.data.length > 0) setFormData(prev => ({ ...prev, categoryId: res.data[0]._id }));
     } catch (error) {
@@ -34,7 +35,8 @@ const Budgets = () => {
 
   const fetchBudgets = async () => {
     try {
-      const res = await axios.get(`http://localhost:5000/api/budgets?month=${selectedMonthFilter}`);
+      const API = process.env.REACT_APP_API_URL;
+      const res = await axios.get(`${API}/api/budgets?month=${selectedMonthFilter}`, { withCredentials: true });
       setBudgets(res.data);
     } catch (error) {
       toast.error("Failed to fetch budgets");
@@ -44,7 +46,8 @@ const Budgets = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('http://localhost:5000/api/budgets', formData);
+      const API = process.env.REACT_APP_API_URL;
+      await axios.post(`${API}/api/budgets`, formData, { withCredentials: true });
       toast.success('Budget Limit Saved!');
       setShowAddModal(false);
       setFormData({ month: selectedMonthFilter, categoryId: categories[0]?._id, amount: '' }); 
@@ -66,7 +69,8 @@ const Budgets = () => {
   const handleDeleteBudget = async (id) => {
     if (window.confirm("Are you sure you want to remove this budget?")) {
       try {
-        await axios.delete(`http://localhost:5000/api/budgets/${id}`);
+        const API = process.env.REACT_APP_API_URL;
+        await axios.delete(`${API}/api/budgets/${id}`, { withCredentials: true });
         toast.success("Budget removed");
         fetchBudgets(); 
       } catch (error) {
@@ -78,7 +82,6 @@ const Budgets = () => {
   return (
     <div style={{ paddingBottom: '40px' }}>
       
-      {/* --- PROFESSIONAL HEADER SECTION --- */}
       <div className="card" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '25px', marginBottom: '30px' }}>
         <div>
           <h2 style={{ margin: 0, fontSize: '22px', fontWeight: '700' }}>Budget Manager</h2>
@@ -87,7 +90,6 @@ const Budgets = () => {
         
         <div style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
           
-          {/* Clean Month Filter */}
           <div style={{ display: 'flex', alignItems: 'center', background: 'var(--input-bg)', padding: '8px 16px', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
             <span style={{ fontSize: '13px', fontWeight: '600', color: 'var(--text-muted)', marginRight: '10px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Month:</span>
             <input 
@@ -107,7 +109,6 @@ const Budgets = () => {
         </div>
       </div>
 
-      {/* --- BUDGET CARDS GRID --- */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))', gap: '25px' }}>
         
         {budgets.length === 0 ? (
@@ -120,7 +121,6 @@ const Budgets = () => {
         {budgets.map((b) => {
           const percent = Math.min((b.spentAmount / b.budgetAmount) * 100, 100);
           
-         
           let barColor = '#3b82f6'; 
           let statusText = 'On Track';
           
@@ -130,10 +130,8 @@ const Budgets = () => {
           return (
             <div key={b._id} className="card" style={{ padding: '25px', position: 'relative', overflow: 'hidden' }}>
               
-              
               <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '4px', background: barColor }}></div>
 
-             
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '25px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                   
@@ -148,18 +146,15 @@ const Budgets = () => {
                 </span>
               </div>
 
-              {/* Progress Bar Info */}
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px', fontSize: '14px', fontWeight: '600' }}>
                 <span style={{ color: 'var(--text-muted)' }}>Used: {Math.round(percent)}%</span>
                 <span style={{ color: 'var(--text-main)' }}>₹{b.spentAmount} <span style={{color: 'var(--text-muted)', fontWeight: '500'}}>/ ₹{b.budgetAmount}</span></span>
               </div>
               
-              {/* The Progress Bar */}
               <div style={{ height: '8px', background: 'var(--hover-bg)', borderRadius: '4px', marginBottom: '25px', overflow: 'hidden' }}>
                 <div style={{ width: `${percent}%`, backgroundColor: barColor, height: '100%', borderRadius: '4px', transition: 'width 0.5s ease-in-out' }}></div>
               </div>
 
-              {/* FOOTER  */}
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px', background: 'var(--hover-bg)', borderRadius: '10px' }}>
                 <div>
                   <span style={{ color: 'var(--text-muted)', fontSize: '12px', display: 'block', fontWeight: '600', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
@@ -185,7 +180,6 @@ const Budgets = () => {
         })}
       </div>
 
-      
       {showAddModal && (
         <div className="modal-overlay">
           <div className="modal-content" style={{ maxWidth: '420px', padding: '35px', borderRadius: '16px' }}>

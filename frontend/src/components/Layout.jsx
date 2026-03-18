@@ -14,7 +14,7 @@ const Layout = ({ children, theme, toggleTheme }) => {
     <div className="app-container">
       {user && (
         <>
-          {/* Overlay blocks clicks, but shouldn't block scrolling on the main page when closed */}
+          
           <div className={`sidebar-overlay ${isSidebarOpen ? 'show' : ''}`} onClick={closeSidebar}></div>
           <Sidebar user={user} isOpen={isSidebarOpen} closeSidebar={closeSidebar} />
         </>

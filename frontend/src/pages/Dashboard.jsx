@@ -32,7 +32,8 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchAvailableMonths = async () => {
       try {
-        const res = await axios.get('http://localhost:5000/api/transactions');
+        const API = process.env.REACT_APP_API_URL;
+        const res = await axios.get(`${API}/api/transactions`, { withCredentials: true });
         let months = [...new Set(res.data.map(t => t.date ? t.date.substring(0, 7) : null))].filter(Boolean).sort().reverse();
         if (!months.includes(currentMonthStr)) months.unshift(currentMonthStr);
         setAvailableMonths(months);
@@ -47,10 +48,11 @@ const Dashboard = () => {
 
   const fetchDashboardData = async () => {
     try {
+      const API = process.env.REACT_APP_API_URL;
       const [chartRes, insightRes, budgetRes] = await Promise.all([
-        axios.get(`http://localhost:5000/api/insights/charts?month=${selectedMonth}`),
-        axios.get(`http://localhost:5000/api/insights?month=${selectedMonth}`),
-        axios.get(`http://localhost:5000/api/budgets?month=${selectedMonth}`)
+        axios.get(`${API}/api/insights/charts?month=${selectedMonth}`, { withCredentials: true }),
+        axios.get(`${API}/api/insights?month=${selectedMonth}`, { withCredentials: true }),
+        axios.get(`${API}/api/budgets?month=${selectedMonth}`, { withCredentials: true })
       ]);
       setChartData(chartRes.data);
       setInsights(insightRes.data);
@@ -78,7 +80,6 @@ const Dashboard = () => {
   const displayMonthName = formatMonthDisplay(selectedMonth);
   const COLORS = ['#3b82f6', '#f59e0b', '#8b5cf6', '#ec4899', '#14b8a6', '#f43f5e'];
 
-  // --- MATH FOR FORECAST CHART (Using Mongo Aggregated Trend Data) ---
   let forecastData = [];
   if (chartData && chartData.trendChartData) {
     const last3Months = chartData.trendChartData.slice(-3);
@@ -238,10 +239,8 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* --- DAY 6 LINE CHARTS RESTORED! --- */}
       <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
         
-        {/* CHART 3: 12-MONTH TREND */}
         <div className="card" style={{ flex: 1, minWidth: '350px' }}>
           <h3>📈 Spending Trend (Last 12 Months)</h3>
           <div style={{ height: '300px', marginTop: '20px' }}>
@@ -257,7 +256,6 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* CHART 4: PREDICTION / FORECAST */}
         <div className="card" style={{ flex: 1, minWidth: '350px' }}>
           <h3>🔮 Expense Forecast (Next Month)</h3>
           <p style={{fontSize: '13px', color: 'var(--text-muted)', marginBottom: '10px'}}>Based on your average spending over the last 3 months.</p>

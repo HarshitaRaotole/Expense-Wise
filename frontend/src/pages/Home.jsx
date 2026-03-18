@@ -7,10 +7,8 @@ const Home = () => {
   return (
     <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '20px', fontFamily: "'Inter', sans-serif" }}>
       
-     
       <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', padding: '40px 0 80px 0', gap: '50px' }}>
         
-       
         <div style={{ flex: '1 1 500px' }}>
           <div style={{ display: 'inline-block', background: '#eff6ff', color: '#3b82f6', padding: '8px 16px', borderRadius: '20px', fontWeight: '700', fontSize: '14px', marginBottom: '25px', border: '1px solid #bfdbfe' }}>
             🚀 The Ultimate Financial Assistant
@@ -41,7 +39,6 @@ const Home = () => {
         </div>
 
         <div style={{ flex: '1 1 500px', display: 'flex', justifyContent: 'center', position: 'relative' }}>
-         
           <div style={{ position: 'absolute', top: '-20px', right: '-20px', width: '100%', height: '100%', background: '#eff6ff', borderRadius: '24px', zIndex: 0 }}></div>
           
           <img 
@@ -53,7 +50,6 @@ const Home = () => {
 
       </div>
 
-      
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '30px', paddingBottom: '50px' }}>
         
         <div style={{ background: 'white', padding: '40px 30px', borderRadius: '20px', boxShadow: '0 10px 30px rgba(0,0,0,0.04)', border: '1px solid #f1f5f9', transition: 'transform 0.3s' }}>
