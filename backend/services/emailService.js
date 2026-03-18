@@ -17,7 +17,7 @@ exports.sendOverspendingEmail = async (userEmail, categoryName, spent, calculate
   
   try {
     const mailOptions = {
-      from: `"ExpenseWise Alerts" <${process.env.EMAIL_USER}>`,
+      from: `"ExpenseWise Alerts" <${process.env.SENDER_EMAIL}>`,
       to: userEmail,
       subject: `⚠️ Unusual Spending Alert: ${categoryName}`,
       html: `
@@ -92,7 +92,7 @@ exports.sendBudgetExceededEmail = async (userEmail, categoryName, spent, budgetL
   const overspent = spent - budgetLimit;
   try {
     const mailOptions = {
-      from: `"ExpenseWise Alerts" <${process.env.EMAIL_USER}>`,
+      from: `"ExpenseWise Alerts" <${process.env.SENDER_EMAIL}>`,
       to: userEmail,
       subject: `🚨 Budget Exceeded: ${categoryName}`,
       html: `

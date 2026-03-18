@@ -40,7 +40,7 @@ exports.register = async (req, res) => {
     const verificationUrl = `https://expense-wise-theta.vercel.app/verify-email/${registrationToken}`;
     
     const mailOptions = {
-      from: `"ExpenseWise" <${process.env.EMAIL_USER}>`,
+      from: `"ExpenseWise" <${process.env.SENDER_EMAIL}>`,
       to: email,
       subject: 'Complete your ExpenseWise Registration',
       html: `
