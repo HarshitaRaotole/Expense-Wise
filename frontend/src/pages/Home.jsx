@@ -44,16 +44,17 @@ const Home = () => {
           <h1 style={{
             fontSize: 'clamp(32px, 5vw, 56px)',
             fontWeight: '800',
-            color: '#0f172a',
+            color: 'var(--text-main)', 
             lineHeight: '1.2',
             marginBottom: '20px'
           }}>
-            Manage Your Money With <span style={{ color: '#0a48ab' }}>Confidence.</span>
+            Manage Your Money With <span style={{ color: '#3b82f6' }}>Confidence.</span>
           </h1>
 
+          
           <p style={{
             fontSize: '16px',
-            color: '#64748b',
+            color: 'var(--text-muted)', 
             lineHeight: '1.6',
             marginBottom: '30px',
             maxWidth: '500px'

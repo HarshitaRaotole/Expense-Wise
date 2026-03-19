@@ -170,23 +170,122 @@ const Dashboard = () => {
       )}
 
       {/* SUMMARY CARDS */}
-      <div className="summary-container" style={{ display: 'flex', gap: '20px', marginBottom: '30px' }}>
-        <div className="summary-card">
-          <h3>Total Balance</h3>
-          <h2 className={(chartData?.summary.balance || 0) >= 0 ? 'text-green' : 'text-red'}>₹{chartData?.summary.balance || 0}</h2>
+      {/* INJECTED RESPONSIVE CSS FOR CARDS */}
+      <style>{`
+        .stats-grid {
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 20px;
+          margin-bottom: 30px;
+        }
+        .stat-card {
+          background: var(--bg-card);
+          border: 1px solid var(--border-color);
+          padding: 24px;
+          border-radius: 20px;
+          box-shadow: 0 10px 25px rgba(0,0,0,0.02);
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .stat-card:hover {
+          transform: translateY(-4px);
+          box-shadow: 0 15px 35px rgba(0,0,0,0.05);
+        }
+        .stat-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 15px;
+        }
+        .stat-icon {
+          width: 45px;
+          height: 45px;
+          border-radius: 14px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 22px;
+        }
+        .stat-title {
+          color: var(--text-muted);
+          font-size: 14px;
+          font-weight: 700;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+          margin: 0;
+        }
+        .stat-value {
+          font-size: 32px;
+          font-weight: 800;
+          color: var(--text-main);
+          margin: 0;
+          letter-spacing: -0.5px;
+        }
+        
+        /* --- MOBILE RESPONSIVENESS --- */
+        @media (max-width: 1024px) {
+          /* Tablets: 2x2 Grid */
+          .stats-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 480px) {
+          /* Phones: 2x2 Grid with compact padding */
+          .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+          .stat-card { padding: 15px; border-radius: 16px; }
+          .stat-icon { width: 36px; height: 36px; font-size: 18px; border-radius: 10px; }
+          .stat-title { font-size: 11px; }
+          .stat-value { font-size: 20px; }
+        }
+      `}</style>
+
+      {/* --- PREMIUM SUMMARY CARDS --- */}
+      <div className="stats-grid">
+        
+        {/* Balance Card */}
+        <div className="stat-card">
+          <div className="stat-header">
+            <h3 className="stat-title">Total Balance</h3>
+            <div className="stat-icon" style={{ background: 'rgba(59, 130, 246, 0.1)', color: '#3b82f6' }}>👛</div>
+          </div>
+          <h2 className={`stat-value ${(chartData?.summary.balance || 0) >= 0 ? 'text-green' : 'text-red'}`}>
+            ₹{(chartData?.summary.balance || 0).toLocaleString('en-IN')}
+          </h2>
         </div>
-        <div className="summary-card">
-          <h3>Total Income</h3>
-          <h2 className="text-green">₹{chartData?.summary.totalIncome || 0}</h2>
+
+        {/* Income Card */}
+        <div className="stat-card">
+          <div className="stat-header">
+            <h3 className="stat-title">Total Income</h3>
+            <div className="stat-icon" style={{ background: 'rgba(16, 185, 129, 0.1)', color: '#10b981' }}>📈</div>
+          </div>
+          <h2 className="stat-value text-green">
+            ₹{(chartData?.summary.totalIncome || 0).toLocaleString('en-IN')}
+          </h2>
         </div>
-        <div className="summary-card">
-          <h3>Total Expense</h3>
-          <h2 className="text-red">₹{chartData?.summary.totalExpense || 0}</h2>
+
+        {/* Expense Card */}
+        <div className="stat-card">
+          <div className="stat-header">
+            <h3 className="stat-title">Total Expense</h3>
+            <div className="stat-icon" style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444' }}>📉</div>
+          </div>
+          <h2 className="stat-value text-red">
+            ₹{(chartData?.summary.totalExpense || 0).toLocaleString('en-IN')}
+          </h2>
         </div>
-        <div className="summary-card" style={{ background: 'var(--hover-bg)', border: '1px dashed var(--border-color)' }}>
-          <h3>🔮 Predicted Expense</h3>
-          <h2 style={{ color: 'var(--text-muted)' }}>₹{insights ? insights.predictedExpense : '0'}</h2>
+
+        {/* Predicted Expense Card */}
+        <div className="stat-card" style={{ background: 'var(--hover-bg)', borderStyle: 'dashed' }}>
+          <div className="stat-header">
+            <h3 className="stat-title">Predicted Exp.</h3>
+            <div className="stat-icon" style={{ background: 'rgba(139, 92, 246, 0.1)', color: '#8b5cf6' }}>🔮</div>
+          </div>
+          <h2 className="stat-value" style={{ color: 'var(--text-muted)' }}>
+            ₹{insights ? insights.predictedExpense.toLocaleString('en-IN') : '0'}
+          </h2>
         </div>
+
       </div>
 
       {/* CHARTS ROW 1 */}

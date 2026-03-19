@@ -170,37 +170,43 @@ const TransactionHistory = () => {
         .sortable-header { cursor: pointer; transition: color 0.2s; user-select: none; }
         .sortable-header:hover { color: #3b82f6; }
 
-        /* MOBILE RESPONSIVE RULES */
-        @media (max-width: 768px) {
-          .header-container {
-            flex-direction: column;
-            align-items: flex-start !important;
-            gap: 15px;
-          }
-          .filters-container {
-            flex-direction: column !important;
-            align-items: stretch !important;
-          }
-          .filters-container input,
-          .filters-container select,
-          .filters-container button {
-            width: 100% !important;
-            flex: none !important;
-            margin-bottom: 10px;
-          }
+        /* --- MODAL RESPONSIVE CSS --- */
+        @media (max-width: 600px) {
+          /* Make the modal fit the screen perfectly with padding */
           .modal-content {
-            width: 95% !important;
-            padding: 25px 20px !important;
+            width: 90% !important;
+            padding: 20px !important;
+            border-radius: 20px !important;
+            max-height: 90vh; /* Prevents modal from being taller than phone screen */
+            overflow-y: auto; /* Allows scrolling inside the modal if needed */
           }
+
+          /* Stack Date and Type inputs on top of each other on mobile */
           .modal-row {
             flex-direction: column !important;
-            gap: 15px !important;
+            gap: 10px !important;
+          }
+
+          /* Adjust header text size so the X button fits */
+          .modal-header h2 { font-size: 18px !important; }
+          .modal-header p { font-size: 12px !important; }
+          
+          /* Stack the "Add Category" input and buttons if they get too tight */
+          .custom-cat-row {
+            flex-wrap: wrap !important;
+          }
+          .custom-cat-row input {
+            width: 100% !important;
+            flex: none !important;
+          }
+          .custom-cat-row button {
+            flex: 1 !important;
           }
         }
       `}</style>
 
       {/* --- HEADER SECTION --- */}
-      <div className="header-container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '25px', borderBottom: '1px solid var(--border-color)', backgroundColor: 'var(--hover-bg)' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '25px', borderBottom: '1px solid var(--border-color)', backgroundColor: 'var(--hover-bg)' }}>
         <div>
           <h2 style={{ margin: 0, color: 'var(--text-main)', fontSize: '22px', fontWeight: '800' }}>📋 Transaction History</h2>
           <p style={{ margin: '5px 0 0 0', color: 'var(--text-muted)', fontSize: '14px' }}>Manage and track all your financial records.</p>
@@ -211,7 +217,7 @@ const TransactionHistory = () => {
       </div>
 
       {/* --- FILTERS SECTION --- */}
-      <div className="filters-container" style={{ padding: '20px 25px', borderBottom: '1px solid var(--border-color)', display: 'flex', gap: '15px', flexWrap: 'wrap', backgroundColor: 'var(--bg-card)', alignItems: 'center' }}>
+      <div style={{ padding: '20px 25px', borderBottom: '1px solid var(--border-color)', display: 'flex', gap: '15px', flexWrap: 'wrap', backgroundColor: 'var(--bg-card)', alignItems: 'center' }}>
         
         <input 
           type="text" placeholder="🔍 Search descriptions..." 
@@ -240,7 +246,7 @@ const TransactionHistory = () => {
         </button>
       </div>
 
-      {/* --- RESPONSIVE TABLE SECTION --- */}
+      {/* --- TABLE SECTION --- */}
       <div style={{ overflowX: 'auto', padding: '10px 25px 25px 25px' }}>
         <table className="transaction-table" style={{ minWidth: '700px' }}>
           <thead>
@@ -285,15 +291,15 @@ const TransactionHistory = () => {
         )}
       </div>
 
-      {/* --- ADD / EDIT MODAL --- */}
+      {/* --- RESPONSIVE MODAL --- */}
       {(showAddModal || isEditing) && (
         <div className="modal-overlay">
-          <div className="modal-content" style={{ maxWidth: '500px', borderRadius: '24px' }}>
+          <div className="modal-content" style={{ maxWidth: '500px', borderRadius: '24px', padding: '35px' }}>
             
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '25px' }}>
+            <div className="modal-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '25px' }}>
               <div>
                 <h2 style={{ margin: 0, fontSize: '22px', fontWeight: '800', color: 'var(--text-main)' }}>
-                  {isEditing ? '✏️ Edit Transaction' : '➕ Record New Transaction'}
+                  {isEditing ? '✏️ Edit Transaction' : ' Record New Transaction'}
                 </h2>
                 <p style={{ color: 'var(--text-muted)', fontSize: '14px', marginTop: '6px' }}>Fill in the details below to track your spending.</p>
               </div>
@@ -308,10 +314,10 @@ const TransactionHistory = () => {
               <label style={{fontWeight: 'bold', fontSize: '12px', color: 'var(--text-muted)'}}>Category</label>
               <div style={{ marginBottom: '15px' }}>
                 {isAddingCategory ? (
-                  <div className="modal-row" style={{ display: 'flex', gap: '10px' }}>
+                  <div className="custom-cat-row" style={{ display: 'flex', gap: '10px' }}>
                     <input type="text" placeholder="Enter new category name..." value={newCategoryName} onChange={(e) => setNewCategoryName(e.target.value)} className="auth-input" style={{ margin: 0, flex: 1, padding: '15px', fontSize: '15px' }} autoFocus />
-                    <button type="button" onClick={handleSaveCustomCategory} style={{ background: '#10b981', color: 'white', border: 'none', borderRadius: '8px', padding: '0 20px', fontWeight: 'bold', cursor: 'pointer' }}>Save</button>
-                    <button type="button" onClick={() => setIsAddingCategory(false)} style={{ background: 'var(--hover-bg)', color: 'var(--text-muted)', border: 'none', borderRadius: '8px', padding: '0 20px', fontWeight: 'bold', cursor: 'pointer' }}>Cancel</button>
+                    <button type="button" onClick={handleSaveCustomCategory} style={{ background: '#10b981', color: 'white', border: 'none', borderRadius: '8px', padding: '15px', fontWeight: 'bold', cursor: 'pointer' }}>Save</button>
+                    <button type="button" onClick={() => setIsAddingCategory(false)} style={{ background: 'var(--hover-bg)', color: 'var(--text-muted)', border: 'none', borderRadius: '8px', padding: '15px', fontWeight: 'bold', cursor: 'pointer' }}>Cancel</button>
                   </div>
                 ) : (
                   <>
@@ -328,6 +334,7 @@ const TransactionHistory = () => {
               <label style={{fontWeight: 'bold', fontSize: '12px', color: 'var(--text-muted)'}}>Description (Optional)</label>
               <input type="text" name="description" placeholder="Description (Optional)" value={formData.description} onChange={(e) => setFormData({...formData, description: e.target.value})} className="auth-input" style={{ padding: '15px', fontSize: '15px' }} />
               
+              {/* Notice the className="modal-row" here for Mobile stacking! */}
               <div className="modal-row" style={{ display: 'flex', gap: '15px' }}>
                 <div style={{ flex: 1 }}>
                   <label style={{fontWeight: 'bold', fontSize: '12px', color: 'var(--text-muted)'}}>Date</label>

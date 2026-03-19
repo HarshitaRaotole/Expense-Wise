@@ -24,12 +24,6 @@ const Sidebar = ({ user, isOpen, closeSidebar }) => {
 
   return (
     <>
-      <style>{`
-        @media (max-width: 400px) {
-          .sidebar { width: 100% !important; right: -100% !important; }
-          .sidebar.open { right: 0 !important; }
-        }
-      `}</style>
 
       <div className={`sidebar ${isOpen ? 'open' : ''}`}>
         <div>

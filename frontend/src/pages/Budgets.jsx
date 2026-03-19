@@ -278,60 +278,63 @@ const Budgets = () => {
         );
       })}
     </div>
-
-    {/* MODAL */}
+{/*modal*/}
     {showAddModal && (
-      <div className="modal-overlay">
-        <div className="modal-content" style={{
-          maxWidth: '400px',
-          width: '95%',
-          padding: '25px'
-        }}>
+        <div className="modal-overlay">
+          
+          
+          <style>{`
+            @media (max-width: 600px) {
+              .budget-modal-content {
+                width: 90% !important; /* Keeps it away from the phone edges */
+                padding: 25px 20px !important;
+                border-radius: 20px !important;
+                max-height: 85vh; /* Prevents it from going off-screen when keyboard opens */
+                overflow-y: auto;
+              }
+            }
+          `}</style>
 
-          <h3 style={{ marginBottom: '15px' }}>Budget Settings</h3>
+          <div className="modal-content budget-modal-content" style={{ maxWidth: '420px', padding: '35px', borderRadius: '24px' }}>
+            
+            {/* HEADER WITH CLOSE BUTTON */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '25px' }}>
+              <h2 style={{ margin: 0, fontSize: '22px', fontWeight: '800', color: 'var(--text-main)' }}>Budget Settings</h2>
+              <button onClick={() => setShowAddModal(false)} style={{ background: 'var(--hover-bg)', border: 'none', width: '36px', height: '36px', borderRadius: '50%', fontSize: '18px', cursor: 'pointer', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: '0.2s' }}>✕</button>
+            </div>
 
-          <form onSubmit={handleSubmit} style={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '12px'
-          }}>
+            {/* FORM WITH BEAUTIFUL LABELS */}
+            <form onSubmit={handleSubmit} style={{ textAlign: 'left' }}>
+              
+              <div style={{ marginBottom: '20px' }}>
+                <label style={{fontWeight: '700', fontSize: '12px', color: 'var(--text-muted)', display: 'block', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px'}}>Target Month</label>
+                <input type="month" value={formData.month} onChange={(e) => setFormData({ ...formData, month: e.target.value })} className="auth-input" style={{ padding: '15px', fontSize: '15px', margin: 0 }} required />
+              </div>
 
-            <input
-              type="month"
-              value={formData.month}
-              onChange={(e) => setFormData({ ...formData, month: e.target.value })}
-              className="auth-input"
-            />
+              <div style={{ marginBottom: '20px' }}>
+                <label style={{fontWeight: '700', fontSize: '12px', color: 'var(--text-muted)', display: 'block', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px'}}>Category</label>
+                <select value={formData.categoryId} onChange={(e) => setFormData({ ...formData, categoryId: e.target.value })} className="auth-input" style={{ padding: '15px', fontSize: '15px', margin: 0, textTransform: 'capitalize' }} required>
+                  {categories.map((cat) => (
+                    <option key={cat._id} value={cat._id}>{cat.name}</option>
+                  ))}
+                </select>
+              </div>
 
-            <select
-              value={formData.categoryId}
-              onChange={(e) => setFormData({ ...formData, categoryId: e.target.value })}
-              className="auth-input"
-            >
-              {categories.map(cat => (
-                <option key={cat._id} value={cat._id}>{cat.name}</option>
-              ))}
-            </select>
+              <div style={{ marginBottom: '30px' }}>
+                <label style={{fontWeight: '700', fontSize: '12px', color: 'var(--text-muted)', display: 'block', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px'}}>Monthly Limit (₹)</label>
+                <input type="number" value={formData.amount} onChange={(e) => setFormData({ ...formData, amount: e.target.value })} className="auth-input" placeholder="e.g. 5000" style={{ padding: '15px', fontSize: '15px', margin: 0 }} required />
+              </div>
 
-            <input
-              type="number"
-              placeholder="Amount"
-              value={formData.amount}
-              onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
-              className="auth-input"
-            />
+              <button type="submit" className="auth-button" style={{ padding: '16px', fontSize: '16px', borderRadius: '12px', boxShadow: '0 4px 10px rgba(59, 130, 246, 0.3)' }}>
+                Save Budget
+              </button>
 
-            <button type="submit" className="auth-button">
-              Save Budget
-            </button>
-
-          </form>
+            </form>
+          </div>
         </div>
-      </div>
-    )}
-
-  </div>
-);
+      )}
+    </div>
+  );
 };
 
 export default Budgets;
