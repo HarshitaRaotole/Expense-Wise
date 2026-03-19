@@ -2,15 +2,20 @@ import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import toast from 'react-hot-toast';
+import { useAuth } from '../context/AuthContext'; // IMPORT THIS!
 
 const Sidebar = ({ user, isOpen, closeSidebar }) => {
   const location = useLocation();
+  const { logout } = useAuth(); // Use the logout function from your context!
 
   const handleLogout = async () => {
     try {
-      await axios.post('http://localhost:5000/api/auth/logout');
-      localStorage.removeItem('user'); 
+      const API = process.env.REACT_APP_API_URL || "http://localhost:5000";
+      await axios.post(`${API}/api/auth/logout`); // Fixed URL!
+      
+      logout(); // This clears localStorage and user state
       toast.success("Logged out successfully");
+      
       setTimeout(() => window.location.href = '/login', 1000);
     } catch (error) {
       toast.error("Logout failed");
@@ -19,7 +24,6 @@ const Sidebar = ({ user, isOpen, closeSidebar }) => {
 
   return (
     <>
-      {/* RESPONSIVE STYLES FOR SIDEBAR */}
       <style>{`
         @media (max-width: 400px) {
           .sidebar { width: 100% !important; right: -100% !important; }
@@ -44,9 +48,9 @@ const Sidebar = ({ user, isOpen, closeSidebar }) => {
 
         <div className="sidebar-footer">
           <div className="user-info">
-            <div className="profile-icon">{user.name.charAt(0)}</div>
+            <div className="profile-icon">{user?.name?.charAt(0)}</div>
             <div>
-              <div className="user-details-name">{user.name}</div>
+              <div className="user-details-name">{user?.name}</div>
               <div className="user-details-status">Logged in</div>
             </div>
           </div>

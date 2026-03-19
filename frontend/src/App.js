@@ -15,6 +15,25 @@ import './App.css';
 
 axios.defaults.withCredentials = true;
 
+// --- 15-MINUTE AUTO-LOGOUT LOGIC ---
+// This listens to every request. If the backend says the cookie expired (401), it logs the user out.
+axios.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    // Check if error is 401 (Unauthorized) and user is NOT already on login page
+    if (error.response && error.response.status === 401 && window.location.pathname !== '/login') {
+      toast.error("Session expired. Please log in again.");
+      localStorage.removeItem('user'); // Clear user from memory
+      
+      // Send them to the login page after a short delay so they can read the toast
+      setTimeout(() => {
+        window.location.href = '/login'; 
+      }, 1500);
+    }
+    return Promise.reject(error);
+  }
+);
+
 function App() {
   // --- GLOBAL DARK MODE STATE ---
   const [theme, setTheme] = useState(localStorage.getItem('theme') || 'light');

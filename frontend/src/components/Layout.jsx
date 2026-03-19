@@ -4,7 +4,7 @@ import Sidebar from './Sidebar';
 import { useAuth } from '../context/AuthContext'; 
 
 const Layout = ({ children, theme, toggleTheme }) => {
-  const { user } = useAuth(); 
+  const { user } = useAuth(); // If no user, this is null
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
@@ -13,7 +13,7 @@ const Layout = ({ children, theme, toggleTheme }) => {
   return (
     <div className="app-container">
       
-      {/* CRITICAL FIX: Only show Sidebar & Overlay if the user is actually logged in! */}
+      {/* SIDEBAR LOGIC: Only render if user exists! */}
       {user && (
         <>
           <div className={`sidebar-overlay ${isSidebarOpen ? 'show' : ''}`} onClick={closeSidebar}></div>
@@ -21,14 +21,8 @@ const Layout = ({ children, theme, toggleTheme }) => {
         </>
       )}
 
-      {/* Main Content */}
       <div className="main-wrapper">
-        <Navbar 
-          user={user} 
-          toggleSidebar={toggleSidebar} 
-          theme={theme} 
-          toggleTheme={toggleTheme} 
-        />
+        <Navbar user={user} toggleSidebar={toggleSidebar} theme={theme} toggleTheme={toggleTheme} />
 
         <div className="page-content" id="scrollable-page-content">
           {children}
