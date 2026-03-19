@@ -13,18 +13,13 @@ const Layout = ({ children, theme, toggleTheme }) => {
   return (
     <div className="app-container">
       
-      {/* Sidebar + Overlay (for all users) */}
-      <>
-        {isSidebarOpen && (
-          <div className="sidebar-overlay show" onClick={closeSidebar}></div>
-        )}
-
-        <Sidebar 
-          user={user} 
-          isOpen={isSidebarOpen} 
-          closeSidebar={closeSidebar} 
-        />
-      </>
+      {/* CRITICAL FIX: Only show Sidebar & Overlay if the user is actually logged in! */}
+      {user && (
+        <>
+          <div className={`sidebar-overlay ${isSidebarOpen ? 'show' : ''}`} onClick={closeSidebar}></div>
+          <Sidebar user={user} isOpen={isSidebarOpen} closeSidebar={closeSidebar} />
+        </>
+      )}
 
       {/* Main Content */}
       <div className="main-wrapper">

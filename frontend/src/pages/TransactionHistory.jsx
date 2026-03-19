@@ -163,216 +163,195 @@ const TransactionHistory = () => {
   };
 
   return (
-  <div className="card" style={{ padding: '0', overflow: 'hidden' }}>
-    
-    <style>{`
-      .sortable-header { cursor: pointer; transition: color 0.2s; user-select: none; }
-      .sortable-header:hover { color: #3b82f6; }
-
-      @media (max-width: 768px) {
-        .filters-container {
-          flex-direction: column !important;
-          align-items: stretch !important;
-        }
-
-        .filters-container input,
-        .filters-container select,
-        .filters-container button {
-          width: 100% !important;
-        }
-
-        .header-container {
-          flex-direction: column;
-          align-items: flex-start !important;
-          gap: 10px;
-        }
-
-        .modal-content {
-          width: 95% !important;
-          padding: 20px !important;
-        }
-
-        .modal-row {
-          flex-direction: column !important;
-        }
-      }
-    `}</style>
-
-    {/* HEADER */}
-    <div className="header-container" style={{
-      display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      padding: '20px',
-      borderBottom: '1px solid var(--border-color)',
-      flexWrap: 'wrap',
-      gap: '10px'
-    }}>
-      <div>
-        <h2 style={{ margin: 0 }}>📋 Transaction History</h2>
-        <p style={{ margin: '5px 0', fontSize: '13px', color: 'var(--text-muted)' }}>
-          Manage and track all your records
-        </p>
-      </div>
-
-      <button 
-        onClick={() => setShowAddModal(true)} 
-        className="auth-button"
-        style={{ padding: '10px 16px', borderRadius: '8px' }}
-      >
-        + Add
-      </button>
-    </div>
-
-    {/* FILTERS */}
-    <div className="filters-container" style={{
-      padding: '15px',
-      borderBottom: '1px solid var(--border-color)',
-      display: 'flex',
-      gap: '10px',
-      flexWrap: 'wrap'
-    }}>
+    <div className="card" style={{ padding: '0', overflow: 'hidden', border: '1px solid var(--border-color)' }}>
       
-      <input 
-        type="text"
-        placeholder="Search..."
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-        className="auth-input"
-        style={{ flex: 2, minWidth: '150px' }}
-      />
+      {/* INJECTED RESPONSIVE CSS */}
+      <style>{`
+        .sortable-header { cursor: pointer; transition: color 0.2s; user-select: none; }
+        .sortable-header:hover { color: #3b82f6; }
 
-      <select value={filterMonth} onChange={(e) => setFilterMonth(e.target.value)} className="auth-select">
-        <option value="">All Months</option>
-        {availableMonths.map(m => (
-          <option key={m} value={m}>{formatMonthDisplay(m)}</option>
-        ))}
-      </select>
+        /* MOBILE RESPONSIVE RULES */
+        @media (max-width: 768px) {
+          .header-container {
+            flex-direction: column;
+            align-items: flex-start !important;
+            gap: 15px;
+          }
+          .filters-container {
+            flex-direction: column !important;
+            align-items: stretch !important;
+          }
+          .filters-container input,
+          .filters-container select,
+          .filters-container button {
+            width: 100% !important;
+            flex: none !important;
+            margin-bottom: 10px;
+          }
+          .modal-content {
+            width: 95% !important;
+            padding: 25px 20px !important;
+          }
+          .modal-row {
+            flex-direction: column !important;
+            gap: 15px !important;
+          }
+        }
+      `}</style>
 
-      <select value={filterType} onChange={(e) => setFilterType(e.target.value)} className="auth-select">
-        <option value="all">All Types</option>
-        <option value="expense">Expense</option>
-        <option value="income">Income</option>
-      </select>
-
-      <select value={filterCategory} onChange={(e) => setFilterCategory(e.target.value)} className="auth-select">
-        <option value="all">All Categories</option>
-        {categories.map(cat => (
-          <option key={cat._id} value={cat.name}>{cat.name}</option>
-        ))}
-      </select>
-
-      <button onClick={resetFilters} style={{
-        padding: '10px',
-        background: '#fee2e2',
-        border: 'none',
-        borderRadius: '6px',
-        color: '#ef4444',
-        fontWeight: '600'
-      }}>
-        Reset
-      </button>
-    </div>
-
-    {/* TABLE */}
-    <div style={{ overflowX: 'auto' }}>
-      <table className="transaction-table" style={{ minWidth: '600px' }}>
-        <thead>
-          <tr>
-            <th onClick={() => requestSort('date')} className="sortable-header">Date</th>
-            <th>Description</th>
-            <th>Category</th>
-            <th>Type</th>
-            <th onClick={() => requestSort('amount')} className="sortable-header">Amount</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          {filteredTransactions.map(txn => (
-            <tr key={txn._id}>
-              <td>{new Date(txn.date).toLocaleDateString('en-GB')}</td>
-              <td>{txn.description || '-'}</td>
-              <td>{txn.category?.name}</td>
-              <td style={{ color: txn.transactionType === 'income' ? 'green' : 'red' }}>
-                {txn.transactionType}
-              </td>
-              <td>
-                ₹{txn.amount}
-              </td>
-              <td>
-                <button onClick={() => handleEditClick(txn)} className="btn-edit">Edit</button>
-                <button onClick={() => handleDelete(txn._id)} className="btn-delete">Delete</button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-
-    {/* MODAL */}
-    {(showAddModal || isEditing) && (
-      <div className="modal-overlay">
-        <div className="modal-content" style={{ maxWidth: '500px', width: '90%' }}>
-          
-          <h3>{isEditing ? "Edit Transaction" : "Add Transaction"}</h3>
-
-          <form onSubmit={isEditing ? handleUpdateSubmit : handleAddSubmit}>
-            
-            <input
-              type="number"
-              placeholder="Amount"
-              value={formData.amount}
-              onChange={(e) => setFormData({...formData, amount: e.target.value})}
-              className="auth-input"
-            />
-
-            <select
-              value={formData.categoryName}
-              onChange={(e) => setFormData({...formData, categoryName: e.target.value})}
-              className="auth-select"
-            >
-              {categories.map(cat => (
-                <option key={cat._id}>{cat.name}</option>
-              ))}
-            </select>
-
-            <input
-              type="text"
-              placeholder="Description"
-              value={formData.description}
-              onChange={(e) => setFormData({...formData, description: e.target.value})}
-              className="auth-input"
-            />
-
-            <div className="modal-row" style={{ display: 'flex', gap: '10px' }}>
-              <input
-                type="date"
-                value={formData.date}
-                onChange={(e) => setFormData({...formData, date: e.target.value})}
-                className="auth-input"
-              />
-
-              <select
-                value={formData.transactionType}
-                onChange={(e) => setFormData({...formData, transactionType: e.target.value})}
-                className="auth-select"
-              >
-                <option value="expense">Expense</option>
-                <option value="income">Income</option>
-              </select>
-            </div>
-
-            <button type="submit" className="auth-button">
-              Save
-            </button>
-          </form>
-
+      {/* --- HEADER SECTION --- */}
+      <div className="header-container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '25px', borderBottom: '1px solid var(--border-color)', backgroundColor: 'var(--hover-bg)' }}>
+        <div>
+          <h2 style={{ margin: 0, color: 'var(--text-main)', fontSize: '22px', fontWeight: '800' }}>📋 Transaction History</h2>
+          <p style={{ margin: '5px 0 0 0', color: 'var(--text-muted)', fontSize: '14px' }}>Manage and track all your financial records.</p>
         </div>
+        <button onClick={() => setShowAddModal(true)} className="auth-button" style={{ width: 'auto', padding: '12px 20px', display: 'flex', alignItems: 'center', gap: '8px', borderRadius: '10px', boxShadow: '0 4px 10px rgba(59, 130, 246, 0.3)' }}>
+          <span style={{ fontSize: '18px', fontWeight: 'bold' }}>+</span> Add Transaction
+        </button>
       </div>
-    )}
-  </div>
-);
+
+      {/* --- FILTERS SECTION --- */}
+      <div className="filters-container" style={{ padding: '20px 25px', borderBottom: '1px solid var(--border-color)', display: 'flex', gap: '15px', flexWrap: 'wrap', backgroundColor: 'var(--bg-card)', alignItems: 'center' }}>
+        
+        <input 
+          type="text" placeholder="🔍 Search descriptions..." 
+          value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} 
+          className="auth-input" style={{ flex: 2, minWidth: '180px', margin: 0 }}
+        />
+
+        <select value={filterMonth} onChange={(e) => setFilterMonth(e.target.value)} className="auth-select" style={{ flex: 1, minWidth: '140px', margin: 0 }}>
+          <option value="">🗓️ All Months</option>
+          {availableMonths.map(m => <option key={m} value={m}>{formatMonthDisplay(m)}</option>)}
+        </select>
+
+        <select value={filterType} onChange={(e) => setFilterType(e.target.value)} className="auth-select" style={{ flex: 1, minWidth: '130px', margin: 0 }}>
+          <option value="all">All Types</option>
+          <option value="expense">📉 Expenses</option>
+          <option value="income">📈 Incomes</option>
+        </select>
+
+        <select value={filterCategory} onChange={(e) => setFilterCategory(e.target.value)} className="auth-select" style={{ flex: 1, minWidth: '140px', margin: 0, textTransform: 'capitalize' }}>
+          <option value="all">All Categories</option>
+          {categories.map(cat => <option key={cat._id} value={cat.name}>{cat.name}</option>)}
+        </select>
+
+        <button onClick={resetFilters} style={{ padding: '12px 20px', background: '#fee2e2', border: '1px solid #fecdd3', borderRadius: '8px', color: '#ef4444', fontWeight: 'bold', cursor: 'pointer', transition: '0.2s' }}>
+          Reset
+        </button>
+      </div>
+
+      {/* --- RESPONSIVE TABLE SECTION --- */}
+      <div style={{ overflowX: 'auto', padding: '10px 25px 25px 25px' }}>
+        <table className="transaction-table" style={{ minWidth: '700px' }}>
+          <thead>
+            <tr>
+              <th className="sortable-header" onClick={() => requestSort('date')} title="Click to sort">
+                Date {sortConfig.key === 'date' ? (sortConfig.direction === 'asc' ? '↑' : '↓') : '↕'}
+              </th>
+              <th>Description</th>
+              <th>Category</th>
+              <th>Type</th>
+              <th className="sortable-header" onClick={() => requestSort('amount')} title="Click to sort">
+                Amount {sortConfig.key === 'amount' ? (sortConfig.direction === 'asc' ? '↑' : '↓') : '↕'}
+              </th>
+              <th style={{ textAlign: 'right' }}>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredTransactions.map((txn) => (
+              <tr key={txn._id} style={{ transition: 'background 0.2s' }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--hover-bg)'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}>
+                <td>{new Date(txn.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</td>
+                <td>{txn.description || <span style={{color: 'var(--text-muted)'}}>-</span>}</td>
+                <td><span style={{ background: 'var(--hover-bg)', color: '#3b82f6', padding: '6px 10px', borderRadius: '6px', fontSize: '13px', fontWeight: '600', textTransform: 'capitalize' }}>{txn.category?.name}</span></td>
+                <td style={{ fontWeight: '700', fontSize: '13px', color: txn.transactionType === 'income' ? '#10b981' : '#ef4444' }}>{txn.transactionType.toUpperCase()}</td>
+                <td style={{ fontWeight: '700', color: txn.transactionType === 'income' ? '#10b981' : '#ef4444' }}>
+                  {txn.transactionType === 'income' ? '+' : '-'}₹{txn.amount.toLocaleString()}
+                </td>
+                <td style={{ textAlign: 'right', minWidth: '150px' }}>
+                  <button onClick={() => handleEditClick(txn)} className="btn-edit">Edit</button>
+                  <button onClick={() => handleDelete(txn._id)} className="btn-delete">Delete</button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        
+        {filteredTransactions.length === 0 && (
+          <div style={{ textAlign: 'center', padding: '60px', color: 'var(--text-muted)' }}>
+            <div style={{ fontSize: '50px', marginBottom: '15px' }}>📭</div>
+            <h3 style={{ color: 'var(--text-main)', marginBottom: '5px' }}>No matching transactions</h3>
+            <p>Try adjusting your search or filters.</p>
+          </div>
+        )}
+      </div>
+
+      {/* --- ADD / EDIT MODAL --- */}
+      {(showAddModal || isEditing) && (
+        <div className="modal-overlay">
+          <div className="modal-content" style={{ maxWidth: '500px', borderRadius: '24px' }}>
+            
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '25px' }}>
+              <div>
+                <h2 style={{ margin: 0, fontSize: '22px', fontWeight: '800', color: 'var(--text-main)' }}>
+                  {isEditing ? '✏️ Edit Transaction' : '➕ Record New Transaction'}
+                </h2>
+                <p style={{ color: 'var(--text-muted)', fontSize: '14px', marginTop: '6px' }}>Fill in the details below to track your spending.</p>
+              </div>
+              <button onClick={closeModals} style={{ background: 'var(--hover-bg)', border: 'none', width: '36px', height: '36px', borderRadius: '50%', fontSize: '18px', cursor: 'pointer', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
+            </div>
+            
+            <form onSubmit={isEditing ? handleUpdateSubmit : handleAddSubmit}>
+              
+              <label style={{fontWeight: 'bold', fontSize: '12px', color: 'var(--text-muted)'}}>Amount (₹)</label>
+              <input type="number" name="amount" placeholder="Amount (₹)" value={formData.amount} onChange={(e) => setFormData({...formData, amount: e.target.value})} className="auth-input" style={{ padding: '15px', fontSize: '15px' }} required />
+              
+              <label style={{fontWeight: 'bold', fontSize: '12px', color: 'var(--text-muted)'}}>Category</label>
+              <div style={{ marginBottom: '15px' }}>
+                {isAddingCategory ? (
+                  <div className="modal-row" style={{ display: 'flex', gap: '10px' }}>
+                    <input type="text" placeholder="Enter new category name..." value={newCategoryName} onChange={(e) => setNewCategoryName(e.target.value)} className="auth-input" style={{ margin: 0, flex: 1, padding: '15px', fontSize: '15px' }} autoFocus />
+                    <button type="button" onClick={handleSaveCustomCategory} style={{ background: '#10b981', color: 'white', border: 'none', borderRadius: '8px', padding: '0 20px', fontWeight: 'bold', cursor: 'pointer' }}>Save</button>
+                    <button type="button" onClick={() => setIsAddingCategory(false)} style={{ background: 'var(--hover-bg)', color: 'var(--text-muted)', border: 'none', borderRadius: '8px', padding: '0 20px', fontWeight: 'bold', cursor: 'pointer' }}>Cancel</button>
+                  </div>
+                ) : (
+                  <>
+                    <select name="categoryName" value={formData.categoryName} onChange={(e) => setFormData({...formData, categoryName: e.target.value})} className="auth-select" style={{ padding: '15px', fontSize: '15px', textTransform: 'capitalize', marginBottom: '10px' }} required>
+                      {categories.map((cat) => (
+                        <option key={cat._id} value={cat.name}>{cat.name}</option>
+                      ))}
+                    </select>
+                    <button type="button" className="add-category-btn" onClick={() => setIsAddingCategory(true)}>+ Add Custom Category</button>
+                  </>
+                )}
+              </div>
+
+              <label style={{fontWeight: 'bold', fontSize: '12px', color: 'var(--text-muted)'}}>Description (Optional)</label>
+              <input type="text" name="description" placeholder="Description (Optional)" value={formData.description} onChange={(e) => setFormData({...formData, description: e.target.value})} className="auth-input" style={{ padding: '15px', fontSize: '15px' }} />
+              
+              <div className="modal-row" style={{ display: 'flex', gap: '15px' }}>
+                <div style={{ flex: 1 }}>
+                  <label style={{fontWeight: 'bold', fontSize: '12px', color: 'var(--text-muted)'}}>Date</label>
+                  <input type="date" name="date" value={formData.date} onChange={(e) => setFormData({...formData, date: e.target.value})} className="auth-input" style={{ padding: '15px', fontSize: '15px' }} />
+                </div>
+                <div style={{ flex: 1 }}>
+                  <label style={{fontWeight: 'bold', fontSize: '12px', color: 'var(--text-muted)'}}>Type</label>
+                  <select name="transactionType" value={formData.transactionType} onChange={(e) => setFormData({...formData, transactionType: e.target.value})} className="auth-select" style={{ padding: '15px', fontSize: '15px', fontWeight: '600' }}>
+                    <option value="expense">Expense</option>
+                    <option value="income">Income</option>
+                  </select>
+                </div>
+              </div>
+
+              <button type="submit" className="auth-button" style={{ padding: '16px', fontSize: '16px', borderRadius: '12px', marginTop: '10px', boxShadow: '0 4px 10px rgba(59, 130, 246, 0.3)' }}>
+                {isEditing ? 'Save Changes' : 'Save Transaction'}
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+      
+    </div>
+  );
 };
 
 export default TransactionHistory;
