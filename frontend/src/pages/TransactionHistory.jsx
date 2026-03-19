@@ -206,15 +206,19 @@ const TransactionHistory = () => {
       `}</style>
 
       {/* --- HEADER SECTION --- */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '25px', borderBottom: '1px solid var(--border-color)', backgroundColor: 'var(--hover-bg)' }}>
-        <div>
-          <h2 style={{ margin: 0, color: 'var(--text-main)', fontSize: '22px', fontWeight: '800' }}>📋 Transaction History</h2>
-          <p style={{ margin: '5px 0 0 0', color: 'var(--text-muted)', fontSize: '14px' }}>Manage and track all your financial records.</p>
-        </div>
-        <button onClick={() => setShowAddModal(true)} className="auth-button" style={{ width: 'auto', padding: '12px 20px', display: 'flex', alignItems: 'center', gap: '8px', borderRadius: '10px', boxShadow: '0 4px 10px rgba(59, 130, 246, 0.3)' }}>
-          <span style={{ fontSize: '18px', fontWeight: 'bold' }}>+</span> Add Transaction
-        </button>
-      </div>
+      <div className="transaction-header">
+  <div className="header-text">
+    <h2>📋 Transaction History</h2>
+    <p>Manage and track all your financial records.</p>
+  </div>
+  
+  <button 
+    onClick={() => setShowAddModal(true)} 
+    className="auth-button add-transaction-btn"
+  >
+    <span className="plus-icon">+</span> Add Transaction
+  </button>
+</div>
 
       {/* --- FILTERS SECTION --- */}
       <div style={{ padding: '20px 25px', borderBottom: '1px solid var(--border-color)', display: 'flex', gap: '15px', flexWrap: 'wrap', backgroundColor: 'var(--bg-card)', alignItems: 'center' }}>

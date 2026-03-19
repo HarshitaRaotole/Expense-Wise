@@ -205,3 +205,64 @@ body { background-color: var(--bg-main); color: var(--text-main); transition: ba
 /* Auth Pages */
 .auth-page { display: flex; justify-content: center; align-items: center; height: 100%; }
 .auth-container { background: white; padding: 40px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); width: 100%; max-width: 420px; text-align: center; border: 1px solid #f1f5f9; }
+
+
+/* --- RESPONSIVE TRANSACTION HEADER --- */
+.transaction-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 25px;
+  border-bottom: 1px solid var(--border-color);
+  background-color: var(--hover-bg);
+  gap: 20px; /* Ensures space between text and button */
+}
+
+.header-text h2 {
+  margin: 0;
+  color: var(--text-main);
+  font-size: 22px;
+  font-weight: 800;
+}
+
+.header-text p {
+  margin: 5px 0 0 0;
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+.add-transaction-btn {
+  width: auto !important; /* Overrides global auth-button width */
+  padding: 12px 20px !important;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);
+  white-space: nowrap; /* Prevents button text from wrapping */
+}
+
+.plus-icon {
+  font-size: 20px;
+  font-weight: bold;
+}
+
+/* 📱 MOBILE RESPONSIVENESS (Screens smaller than 600px) */
+@media (max-width: 600px) {
+  .transaction-header {
+    flex-direction: column; /* Stacks text and button vertically */
+    align-items: flex-start; /* Aligns everything to the left */
+    padding: 20px 15px;
+    gap: 15px;
+  }
+
+  .add-transaction-btn {
+    width: 100% !important; /* Button takes full width on small screens */
+    padding: 14px !important;
+  }
+  
+  .header-text h2 {
+    font-size: 19px; /* Slightly smaller title for small screens */
+  }
+}
