@@ -1,5 +1,4 @@
 const axios = require("axios");
-
 const User = require('../models/User');
 const Category = require('../models/Category');
 const bcrypt = require('bcrypt');
@@ -24,28 +23,24 @@ exports.register = async (req, res) => {
       { expiresIn: '24h' }
     );
 
-    console.log("SENDER_EMAIL:", process.env.SENDER_EMAIL);
-    console.log("BREVO_API_KEY:", process.env.BREVO_API_KEY ? "Loaded" : "Missing");
-
     const verificationUrl = `https://expense-wise-theta.vercel.app/verify-email/${registrationToken}`;
 
     await axios.post(
       "https://api.brevo.com/v3/smtp/email",
       {
-        sender: {
-          name: "ExpenseWise",
-          email: process.env.SENDER_EMAIL,
-        },
-        to: [
-          {
-            email: email,
-          },
-        ],
+        sender: { name: "ExpenseWise", email: process.env.SENDER_EMAIL },
+        to: [{ email: email }],
         subject: "Complete your ExpenseWise Registration",
         htmlContent: `
-          <h2>Activate Your Account</h2>
-          <p>Hi ${name},</p>
-          <a href="${verificationUrl}">Verify Account</a>
+          <div style="font-family: sans-serif; max-width: 600px; margin: auto; border: 1px solid #eee; padding: 20px; border-radius: 12px;">
+            <h2 style="color: #3b82f6; text-align: center;">Activate Your Account</h2>
+            <p>Hi ${name},</p>
+            <p>Thank you for choosing ExpenseWise! To complete your registration and create your account, please click the button below:</p>
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="${verificationUrl}" style="background-color: #3b82f6; color: white; padding: 14px 25px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">Verify & Create Account</a>
+            </div>
+            <p style="font-size: 12px; color: #94a3b8; text-align: center;">This link will expire in 24 hours.</p>
+          </div>
         `,
       },
       {
@@ -56,8 +51,6 @@ exports.register = async (req, res) => {
         },
       }
     );
-
-    console.log("Verification email sent");
 
     res.status(200).json({ message: 'Verification link sent! Check your email to create your account.' });
 
@@ -81,14 +74,14 @@ exports.verifyEmail = async (req, res) => {
 
     const existingUser = await User.findOne({ email: decoded.email });
     if (existingUser) {
-      return res.status(400).json({ message: 'Account already verified and created. Please login.' });
+      // ADDED alreadyVerified: true flag
+      return res.status(400).json({ message: 'Account already verified and created. Please login.', alreadyVerified: true });
     }
 
     const newUser = new User({
       name: decoded.name,
       email: decoded.email,
-      password: decoded.password,
-      isVerified: true
+      password: decoded.password
     });
 
     await newUser.save();
@@ -104,33 +97,11 @@ exports.verifyEmail = async (req, res) => {
 
     await Category.insertMany(defaultCategories);
 
-    const accessToken = jwt.sign(
-      { userId: newUser._id, email: newUser.email },
-      process.env.JWT_SECRET,
-      { expiresIn: '15m' }
-    );
+    const accessToken = jwt.sign({ userId: newUser._id, email: newUser.email }, process.env.JWT_SECRET, { expiresIn: '15m' });
+    const refreshToken = jwt.sign({ userId: newUser._id, email: newUser.email }, process.env.JWT_REFRESH_SECRET, { expiresIn: '7d' });
 
-    const refreshToken = jwt.sign(
-      { userId: newUser._id, email: newUser.email },
-      process.env.JWT_REFRESH_SECRET,
-      { expiresIn: '7d' }
-    );
-
-    res.cookie('accessToken', accessToken, {
-  httpOnly: true,
-  secure: true,
-  sameSite: 'none',
-  path: '/',
-  maxAge: 15 * 60 * 1000
-});
-
-res.cookie('refreshToken', refreshToken, {
-  httpOnly: true,
-  secure: true,
-  sameSite: 'none',
-  path: '/',
-  maxAge: 7 * 24 * 60 * 60 * 1000
-});
+    res.cookie('accessToken', accessToken, { httpOnly: true, secure: true, sameSite: 'none', path: '/', maxAge: 15 * 60 * 1000 });
+    res.cookie('refreshToken', refreshToken, { httpOnly: true, secure: true, sameSite: 'none', path: '/', maxAge: 7 * 24 * 60 * 60 * 1000 });
 
     res.status(201).json({
       message: 'Email verified and account created successfully!',
@@ -147,48 +118,21 @@ res.cookie('refreshToken', refreshToken, {
 exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
-
     const user = await User.findOne({ email });
 
     if (!user || !(await bcrypt.compare(password, user.password))) {
       return res.status(400).json({ message: 'Invalid email or password' });
     }
 
-    if (!user.isVerified) {
-      return res.status(403).json({ message: 'Please verify your email first.' });
-    }
+    // Removed the isVerified strict check to prevent Mongoose schema bugs
 
-    const accessToken = jwt.sign(
-      { userId: user._id, email: user.email },
-      process.env.JWT_SECRET,
-      { expiresIn: '15m' }
-    );
+    const accessToken = jwt.sign({ userId: user._id, email: user.email }, process.env.JWT_SECRET, { expiresIn: '15m' });
+    const refreshToken = jwt.sign({ userId: user._id, email: user.email }, process.env.JWT_REFRESH_SECRET, { expiresIn: '7d' });
 
-    const refreshToken = jwt.sign(
-      { userId: user._id, email: user.email },
-      process.env.JWT_REFRESH_SECRET,
-      { expiresIn: '7d' }
-    );
+    res.cookie('accessToken', accessToken, { httpOnly: true, secure: true, sameSite: 'none', maxAge: 15 * 60 * 1000 });
+    res.cookie('refreshToken', refreshToken, { httpOnly: true, secure: true, sameSite: 'none', maxAge: 7 * 24 * 60 * 60 * 1000 });
 
-    res.cookie('accessToken', accessToken, {
-      httpOnly: true,
-      secure: true,
-      sameSite: 'none',
-      maxAge: 15 * 60 * 1000
-    });
-
-    res.cookie('refreshToken', refreshToken, {
-      httpOnly: true,
-      secure: true,
-      sameSite: 'none',
-      maxAge: 7 * 24 * 60 * 60 * 1000
-    });
-
-    res.status(200).json({
-      message: 'Login successful',
-      user: { id: user._id, name: user.name, email: user.email }
-    });
-
+    res.status(200).json({ message: 'Login successful', user: { id: user._id, name: user.name, email: user.email } });
   } catch (error) {
     res.status(500).json({ message: 'Server error' });
   }
@@ -197,27 +141,12 @@ exports.login = async (req, res) => {
 // 4. REFRESH TOKEN API
 exports.refreshAccessToken = (req, res) => {
   const refreshToken = req.cookies.refreshToken;
-
-  if (!refreshToken) {
-    return res.status(401).json({ message: 'No refresh token' });
-  }
+  if (!refreshToken) return res.status(401).json({ message: 'No refresh token' });
 
   jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET, (err, decoded) => {
     if (err) return res.status(403).json({ message: 'Invalid token' });
-
-    const newAccessToken = jwt.sign(
-      { userId: decoded.userId },
-      process.env.JWT_SECRET,
-      { expiresIn: '15m' }
-    );
-
-    res.cookie('accessToken', newAccessToken, {
-      httpOnly: true,
-      secure: true,
-      sameSite: 'none',
-      maxAge: 15 * 60 * 1000
-    });
-
+    const newAccessToken = jwt.sign({ userId: decoded.userId }, process.env.JWT_SECRET, { expiresIn: '15m' });
+    res.cookie('accessToken', newAccessToken, { httpOnly: true, secure: true, sameSite: 'none', maxAge: 15 * 60 * 1000 });
     res.status(200).json({ message: 'Refreshed' });
   });
 };

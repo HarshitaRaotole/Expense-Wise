@@ -19,7 +19,8 @@ const VerifyEmail = () => {
 
     const verifyToken = async () => {
       try {
-        const API = process.env.REACT_APP_API_URL;
+        // Fallback to empty string if Vercel variable is missing
+        const API = process.env.REACT_APP_API_URL || ""; 
         const res = await axios.get(`${API}/api/auth/verify-email/${token}`, { withCredentials: true });
         
         login(res.data.user); 
@@ -29,8 +30,16 @@ const VerifyEmail = () => {
         
         setTimeout(() => navigate('/dashboard'), 2000);
       } catch (err) {
-        setStatus('error');
-        toast.error(err.response?.data?.message || "Verification failed");
+        
+        // --- NEW LOGIC: Handle the "Gmail Pre-fetch" Bug ---
+        if (err.response?.data?.alreadyVerified) {
+          setStatus('success');
+          toast.success("Account is already verified! Redirecting to login...");
+          setTimeout(() => navigate('/login'), 2000);
+        } else {
+          setStatus('error');
+          toast.error(err.response?.data?.message || "Verification failed");
+        }
       }
     };
 
@@ -38,30 +47,30 @@ const VerifyEmail = () => {
   }, [token, navigate, login]);
 
   return (
-    <div style={{ height: '90vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f8fafc' }}>
-      <div style={{ maxWidth: '450px', width: '100%', padding: '40px', textAlign: 'center', background: 'white', borderRadius: '32px', boxShadow: '0 20px 40px rgba(0,0,0,0.05)' }}>
+    <div style={{ height: '90vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--bg-main)' }}>
+      <div style={{ maxWidth: '450px', width: '100%', padding: '40px', textAlign: 'center', background: 'var(--bg-card)', borderRadius: '32px', boxShadow: '0 20px 40px rgba(0,0,0,0.05)', border: '1px solid var(--border-color)' }}>
         
         {status === 'verifying' && (
           <div>
-            <div className="loader" style={{ margin: '0 auto 20px', border: '4px solid #f3f3f3', borderTop: '4px solid #3b82f6', borderRadius: '50%', width: '40px', height: '40px', animation: 'spin 1s linear infinite' }}></div>
-            <h2 style={{ color: '#1e293b', fontWeight: '800' }}>Verifying Account...</h2>
-            <p style={{ color: '#64748b' }}>Please wait while we secure your access.</p>
+            <div className="loader" style={{ margin: '0 auto 20px', border: '4px solid var(--border-color)', borderTop: '4px solid #3b82f6', borderRadius: '50%', width: '40px', height: '40px', animation: 'spin 1s linear infinite' }}></div>
+            <h2 style={{ color: 'var(--text-main)', fontWeight: '800' }}>Verifying Account...</h2>
+            <p style={{ color: 'var(--text-muted)' }}>Please wait while we secure your access.</p>
           </div>
         )}
 
         {status === 'success' && (
           <div style={{ animation: 'fadeIn 0.5s ease-out' }}>
             <div style={{ fontSize: '70px', marginBottom: '20px' }}>🎉</div>
-            <h2 style={{ color: '#1e293b', fontWeight: '800', marginBottom: '10px' }}>Success!</h2>
-            <p style={{ color: '#64748b' }}>Your email is verified. Redirecting you to your dashboard now...</p>
+            <h2 style={{ color: 'var(--text-main)', fontWeight: '800', marginBottom: '10px' }}>Success!</h2>
+            <p style={{ color: 'var(--text-muted)' }}>Your account is verified. Redirecting you now...</p>
           </div>
         )}
 
         {status === 'error' && (
           <div>
             <div style={{ fontSize: '70px', marginBottom: '20px' }}>❌</div>
-            <h2 style={{ color: '#ef4444', fontWeight: '800', marginBottom: '10px' }}>Link Expired</h2>
-            <p style={{ color: '#64748b', marginBottom: '25px' }}>This verification link is invalid or has already been used.</p>
+            <h2 style={{ color: '#ef4444', fontWeight: '800', marginBottom: '10px' }}>Verification Failed</h2>
+            <p style={{ color: 'var(--text-muted)', marginBottom: '25px' }}>This verification link is invalid or has expired.</p>
             <button onClick={() => navigate('/login')} className="auth-button">Back to Login</button>
           </div>
         )}

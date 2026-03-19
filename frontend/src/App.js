@@ -41,7 +41,7 @@ function App() {
           <Route path="/home" element={<Home />} />
           <Route path="/register" element={<div className="auth-page"><Register /></div>} />
           <Route path="/login" element={<div className="auth-page"><Login /></div>} />
-          <Route path="/verify/:token" element={<VerifyEmail />} />
+          <Route path="/verify-email/:token" element={<VerifyEmail />} />
           
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/transactions" element={<TransactionHistory />} />
