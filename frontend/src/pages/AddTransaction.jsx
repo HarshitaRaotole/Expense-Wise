@@ -118,137 +118,192 @@ const AddTransaction = () => {
 
   return (
 
-    <div className="card" style={{ maxWidth: '600px', margin: '0 auto' }}>
+  <div className="card" style={{
+    maxWidth: '600px',
+    margin: '0 auto',
+    padding: 'clamp(20px, 5vw, 30px)'
+  }}>
 
-      <h2> Record New Transaction</h2>
+    <style>{`
+      @media (max-width: 768px) {
+        .modal-content {
+          width: 90% !important;
+          padding: 20px !important;
+        }
 
-      <form onSubmit={handleSubmit}>
+        .modal-actions {
+          flex-direction: column !important;
+        }
 
-        <input
-          type="number"
-          name="amount"
-          placeholder="Amount (₹)"
-          value={formData.amount}
-          onChange={handleChange}
-          className="auth-input"
-          required
-        />
+        .modal-actions button {
+          width: 100%;
+        }
+      }
+    `}</style>
 
-        <select
-          name="categoryName"
-          value={formData.categoryName}
-          onChange={handleChange}
-          className="auth-input"
-          required
-        >
+    <h2 style={{
+      marginBottom: '20px',
+      fontSize: 'clamp(20px, 4vw, 26px)'
+    }}>
+      Record New Transaction
+    </h2>
 
-          <option value="">Select Category</option>
+    <form onSubmit={handleSubmit} style={{
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '12px'
+    }}>
 
-          {categories.map((cat) => (
-            <option key={cat._id} value={cat.name}>
-              {cat.name}
-            </option>
-          ))}
+      <input
+        type="number"
+        name="amount"
+        placeholder="Amount (₹)"
+        value={formData.amount}
+        onChange={handleChange}
+        className="auth-input"
+        style={inputStyle}
+        required
+      />
 
-        </select>
+      <select
+        name="categoryName"
+        value={formData.categoryName}
+        onChange={handleChange}
+        className="auth-input"
+        style={inputStyle}
+        required
+      >
+        <option value="">Select Category</option>
+        {categories.map((cat) => (
+          <option key={cat._id} value={cat.name}>
+            {cat.name}
+          </option>
+        ))}
+      </select>
 
-        <button
-          type="button"
-          className="add-category-btn"
-          onClick={() => setShowCategoryModal(true)}
-        >
-          + Add Custom Category
-        </button>
+      <button
+        type="button"
+        className="add-category-btn"
+        onClick={() => setShowCategoryModal(true)}
+        style={{
+          padding: '10px',
+          fontSize: '14px',
+          borderRadius: '8px'
+        }}
+      >
+        + Add Custom Category
+      </button>
 
-        <input
-          type="text"
-          name="description"
-          placeholder="Description (Optional)"
-          value={formData.description}
-          onChange={handleChange}
-          className="auth-input"
-        />
+      <input
+        type="text"
+        name="description"
+        placeholder="Description (Optional)"
+        value={formData.description}
+        onChange={handleChange}
+        className="auth-input"
+        style={inputStyle}
+      />
 
-        <input
-          type="date"
-          name="date"
-          value={formData.date}
-          max={getMaxDate()}
-          onChange={handleChange}
-          className="auth-input"
-        />
+      <input
+        type="date"
+        name="date"
+        value={formData.date}
+        max={getMaxDate()}
+        onChange={handleChange}
+        className="auth-input"
+        style={inputStyle}
+      />
 
-        <select
-          name="transactionType"
-          value={formData.transactionType}
-          onChange={handleChange}
-          className="auth-input"
-        >
-          <option value="expense">Expense</option>
-          <option value="income">Income</option>
-        </select>
+      <select
+        name="transactionType"
+        value={formData.transactionType}
+        onChange={handleChange}
+        className="auth-input"
+        style={inputStyle}
+      >
+        <option value="expense">Expense</option>
+        <option value="income">Income</option>
+      </select>
 
-        <button
-          type="submit"
-          className="auth-button"
-        >
-          Save Transaction
-        </button>
+      <button
+        type="submit"
+        className="auth-button"
+        style={{
+          marginTop: '10px',
+          padding: '14px',
+          fontSize: '15px',
+          borderRadius: '10px',
+          width: '100%'
+        }}
+      >
+        Save Transaction
+      </button>
 
-      </form>
+    </form>
 
-      {showCategoryModal && (
+    {/* MODAL */}
+    {showCategoryModal && (
 
-        <div className="modal-overlay">
+      <div className="modal-overlay">
 
-          <div className="modal-content">
+        <div className="modal-content" style={{
+          maxWidth: '400px',
+          width: '95%',
+          padding: '25px',
+          borderRadius: '16px'
+        }}>
 
-            <h3>Create New Category</h3>
+          <h3 style={{ marginBottom: '10px' }}>Create New Category</h3>
 
-            <input
-              type="text"
-              placeholder="e.g., Gym, Netflix..."
-              className="auth-input"
-              value={newCategory}
-              onChange={(e) => setNewCategory(e.target.value)}
-              style={{ marginTop: '15px' }}
-              autoFocus
-            />
+          <input
+            type="text"
+            placeholder="e.g., Gym, Netflix..."
+            className="auth-input"
+            value={newCategory}
+            onChange={(e) => setNewCategory(e.target.value)}
+            style={{ marginTop: '10px' }}
+            autoFocus
+          />
 
-            <div className="modal-actions">
+          <div className="modal-actions" style={{
+            display: 'flex',
+            gap: '10px',
+            marginTop: '15px'
+          }}>
 
-              <button
-                className="btn-cancel"
-                onClick={() => setShowCategoryModal(false)}
-              >
-                Cancel
-              </button>
+            <button
+              className="btn-cancel"
+              onClick={() => setShowCategoryModal(false)}
+              style={{ flex: 1 }}
+            >
+              Cancel
+            </button>
 
-              <button
-                className="btn-save"
-                onClick={handleAddCustomCategory}
-                style={{
-                  background: '#3b82f6',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '6px',
-                  flex: 1
-                }}
-              >
-                Add
-              </button>
-
-            </div>
+            <button
+              className="btn-save"
+              onClick={handleAddCustomCategory}
+              style={{
+                background: '#3b82f6',
+                color: 'white',
+                border: 'none',
+                borderRadius: '6px',
+                flex: 1,
+                padding: '10px'
+              }}
+            >
+              Add
+            </button>
 
           </div>
 
         </div>
 
-      )}
+      </div>
 
-    </div>
+    )}
 
-  );
+  </div>
+);
 };
 
 export default AddTransaction;

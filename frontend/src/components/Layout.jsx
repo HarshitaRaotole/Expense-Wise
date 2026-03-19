@@ -12,18 +12,29 @@ const Layout = ({ children, theme, toggleTheme }) => {
 
   return (
     <div className="app-container">
-      {user && (
-        <>
-          
-          <div className={`sidebar-overlay ${isSidebarOpen ? 'show' : ''}`} onClick={closeSidebar}></div>
-          <Sidebar user={user} isOpen={isSidebarOpen} closeSidebar={closeSidebar} />
-        </>
-      )}
       
+      {/* Sidebar + Overlay (for all users) */}
+      <>
+        {isSidebarOpen && (
+          <div className="sidebar-overlay show" onClick={closeSidebar}></div>
+        )}
+
+        <Sidebar 
+          user={user} 
+          isOpen={isSidebarOpen} 
+          closeSidebar={closeSidebar} 
+        />
+      </>
+
+      {/* Main Content */}
       <div className="main-wrapper">
-        <Navbar user={user} toggleSidebar={toggleSidebar} theme={theme} toggleTheme={toggleTheme} />
-        
-        {/* THIS is the div that actually scrolls! */}
+        <Navbar 
+          user={user} 
+          toggleSidebar={toggleSidebar} 
+          theme={theme} 
+          toggleTheme={toggleTheme} 
+        />
+
         <div className="page-content" id="scrollable-page-content">
           {children}
         </div>

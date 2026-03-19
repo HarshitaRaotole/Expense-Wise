@@ -97,186 +97,224 @@ const Dashboard = () => {
   }
 
   return (
-    <div>
-      <style>{`
-        .custom-dropdown-menu { position: absolute; top: 110%; right: 0; width: 220px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); z-index: 100; overflow: hidden; opacity: 0; visibility: hidden; transform: translateY(-10px); transition: 0.2s ease-in-out; }
-        .custom-dropdown-menu.show { opacity: 1; visibility: visible; transform: translateY(0); }
-        .dropdown-item { padding: 12px 20px; cursor: pointer; color: var(--text-main); font-weight: 500; transition: 0.2s; border-bottom: 1px solid var(--border-color); }
-        .dropdown-item:last-child { border-bottom: none; }
-        .dropdown-item:hover { background: var(--hover-bg); color: #3b82f6; }
-        .dropdown-item.active { background: #eff6ff; color: #3b82f6; font-weight: 700; border-left: 4px solid #3b82f6; }
-        [data-theme="dark"] .dropdown-item.active { background: #1e3a8a; }
-      `}</style>
+  <div>
 
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '25px', flexWrap: 'wrap', gap: '15px' }}>
-        <div>
-          <h2 style={{ color: 'var(--text-main)', fontSize: '28px', fontWeight: '800' }}>Hi, {user?.name.split(' ')[0]}! 👋</h2>
-          <p style={{ color: 'var(--text-muted)', fontSize: '15px' }}>Here is your financial overview for {displayMonthName}.</p>
-        </div>
+    <style>{`
+      .dashboard-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 20px;
+      }
 
-        <div ref={dropdownRef} style={{ position: 'relative' }}>
-          <button onClick={() => setIsDropdownOpen(!isDropdownOpen)} style={{ display: 'flex', alignItems: 'center', gap: '10px', background: 'var(--bg-card)', padding: '10px 20px', borderRadius: '12px', border: '1px solid var(--border-color)', boxShadow: '0 4px 6px rgba(0,0,0,0.02)', cursor: 'pointer', color: 'var(--text-main)', fontSize: '15px', fontWeight: '700', transition: '0.2s' }}>
-            <span style={{ fontSize: '18px' }}>📅</span>{displayMonthName}
-            <span style={{ fontSize: '12px', marginLeft: '5px', color: 'var(--text-muted)', transform: isDropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)', transition: '0.3s' }}>▼</span>
-          </button>
-          <div className={`custom-dropdown-menu ${isDropdownOpen ? 'show' : ''}`}>
-            {availableMonths.map(m => (
-              <div key={m} className={`dropdown-item ${selectedMonth === m ? 'active' : ''}`} onClick={() => { setSelectedMonth(m); setIsDropdownOpen(false); }}>
-                {formatMonthDisplay(m)}
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-      
-      {insights?.alerts && insights.alerts.length > 0 && (
-        <div style={{ marginBottom: '20px' }}>
-          {insights.alerts.map((alert, index) => {
-            const alertKey = `${selectedMonth}-${alert.type}`;
-            if (dismissedAlerts[alertKey]) return null;
+      .summary-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 15px;
+        margin-bottom: 20px;
+      }
 
-            const isBudgetAlert = alert.type === 'BUDGET';
-            const bgColor = isBudgetAlert ? '#fef2f2' : '#fffbeb';
-            const borderColor = isBudgetAlert ? '#ef4444' : '#f59e0b';
-            const textColor = isBudgetAlert ? '#991b1b' : '#b45309';
+      .chart-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 15px;
+        margin-bottom: 20px;
+      }
 
-            return (
-              <div key={index} style={{ background: bgColor, border: `1px solid ${borderColor}40`, borderLeft: `4px solid ${borderColor}`, padding: '15px 20px', borderRadius: '8px', marginBottom: '15px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-                  <span style={{ fontSize: '24px' }}>{isBudgetAlert ? '🚨' : '📈'}</span>
-                  <div>
-                    <strong style={{ color: textColor, fontSize: '15px', display: 'block', marginBottom: '4px' }}>{alert.title}</strong>
-                    <div style={{ color: textColor, fontSize: '14px', opacity: 0.9 }}>{alert.message}</div>
-                  </div>
-                </div>
-                <button onClick={() => handleDismissAlert(alert.type)} style={{ background: borderColor, color: 'white', border: 'none', padding: '10px 20px', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer' }}>Okay, I understand</button>
-              </div>
-            )
-          })}
-        </div>
-      )}
+      @media (max-width: 768px) {
+        .dashboard-top h2 {
+          font-size: 20px !important;
+        }
 
-      <div className="summary-container" style={{ display: 'flex', gap: '20px', flexWrap: 'wrap', marginBottom: '30px' }}>
-        <div className="summary-card">
-          <h3>Total Balance</h3>
-          <h2 className={(chartData?.summary.balance || 0) >= 0 ? 'text-green' : 'text-red'}>₹{chartData?.summary.balance || 0}</h2>
-        </div>
-        <div className="summary-card">
-          <h3>Total Income</h3>
-          <h2 className="text-green">₹{chartData?.summary.totalIncome || 0}</h2>
-        </div>
-        <div className="summary-card">
-          <h3>Total Expense</h3>
-          <h2 className="text-red">₹{chartData?.summary.totalExpense || 0}</h2>
-        </div>
-        <div className="summary-card" style={{ background: 'var(--hover-bg)', border: '1px dashed var(--border-color)' }}>
-          <h3>🔮 Predicted Expense</h3>
-          <h2 style={{ color: 'var(--text-muted)' }}>₹{insights ? insights.predictedExpense : '0'}</h2>
-        </div>
+        .custom-dropdown-menu {
+          width: 100% !important;
+          right: auto !important;
+          left: 0;
+        }
+
+        .card {
+          padding: 15px !important;
+        }
+      }
+    `}</style>
+
+    {/* TOP */}
+    <div className="dashboard-top">
+      <div>
+        <h2 style={{ fontWeight: '800' }}>
+          Hi, {user?.name.split(' ')[0]} 👋
+        </h2>
+        <p style={{ color: 'var(--text-muted)', fontSize: '14px' }}>
+          Overview for {displayMonthName}
+        </p>
       </div>
 
-      <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap', marginBottom: '20px' }}>
-        <div className="card" style={{ flex: 1, minWidth: '350px' }}>
-          <h3>🍩 Category Spending ({displayMonthName})</h3>
-          {chartData?.pieChartData && chartData.pieChartData.length > 0 ? (
-            <div style={{ height: '300px', marginTop: '20px' }}>
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie data={chartData.pieChartData} cx="50%" cy="50%" innerRadius={60} outerRadius={100} paddingAngle={5} dataKey="value">
-                    {chartData.pieChartData.map((entry, index) => <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />)}
-                  </Pie>
-                  <RechartsTooltip formatter={(value) => `₹${value}`} contentStyle={{ background: 'var(--bg-card)', borderColor: 'var(--border-color)', color: 'var(--text-main)' }}/>
-                  <Legend />
-                </PieChart>
-              </ResponsiveContainer>
+      {/* DROPDOWN */}
+      <div ref={dropdownRef} style={{ position: 'relative' }}>
+        <button
+          onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+          style={{
+            padding: '8px 14px',
+            borderRadius: '8px',
+            border: '1px solid var(--border-color)',
+            cursor: 'pointer'
+          }}
+        >
+          📅 {displayMonthName}
+        </button>
+
+        <div className={`custom-dropdown-menu ${isDropdownOpen ? 'show' : ''}`}>
+          {availableMonths.map(m => (
+            <div
+              key={m}
+              className={`dropdown-item ${selectedMonth === m ? 'active' : ''}`}
+              onClick={() => {
+                setSelectedMonth(m);
+                setIsDropdownOpen(false);
+              }}
+            >
+              {formatMonthDisplay(m)}
             </div>
-          ) : (<p style={{ marginTop: '20px', color: 'var(--text-muted)' }}>No expenses logged this month.</p>)}
-        </div>
-
-        <div className="card" style={{ flex: 1, minWidth: '350px' }}>
-          <h3>🏆 Top Budgets ({displayMonthName})</h3>
-          <div style={{ marginTop: '20px', maxHeight: '300px', overflowY: 'auto', paddingRight: '10px' }}>
-            {budgets.length === 0 ? <p style={{color: 'var(--text-muted)'}}>No budgets set for this month.</p> : null}
-            {budgets.map((b, index) => {
-              const percent = Math.min((b.spentAmount / b.budgetAmount) * 100, 100);
-              const barColor = percent >= 100 ? '#ef4444' : percent >= 80 ? '#f59e0b' : '#3b82f6';
-              const remaining = b.budgetAmount - b.spentAmount;
-
-              return (
-                <div key={index} style={{ marginBottom: '25px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-                    <strong style={{ fontSize: '16px', color: 'var(--text-main)', textTransform: 'capitalize' }}>{b.category?.name}</strong>
-                    <span style={{ fontSize: '12px', fontWeight: 'bold', padding: '4px 8px', borderRadius: '12px', background: percent >= 100 ? '#fef2f2' : '#eff6ff', color: percent >= 100 ? '#ef4444' : '#3b82f6' }}>{Math.round(percent)}% Used</span>
-                  </div>
-                  <div style={{ width: '100%', height: '8px', background: 'var(--border-color)', borderRadius: '4px', overflow: 'hidden' }}>
-                    <div style={{ width: `${percent}%`, backgroundColor: barColor, height: '100%', borderRadius: '4px' }}></div>
-                  </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '10px', fontSize: '13px' }}>
-                    <div><span style={{color: 'var(--text-muted)'}}>Spent:</span> <b style={{color: 'var(--text-main)'}}>₹{b.spentAmount}</b></div>
-                    <div><span style={{color: 'var(--text-muted)'}}>Remaining:</span> <b style={{color: remaining >= 0 ? '#10b981' : '#ef4444'}}>₹{Math.abs(remaining)}</b></div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+          ))}
         </div>
       </div>
+    </div>
 
-      <div className="card" style={{ marginBottom: '20px' }}>
-        <h3>📊 Income vs Expense ({selectedMonth.split('-')[0]})</h3>
-        <div style={{ height: '350px', marginTop: '20px' }}>
+    {/* ALERTS */}
+    {insights?.alerts?.map((alert, index) => {
+      const alertKey = `${selectedMonth}-${alert.type}`;
+      if (dismissedAlerts[alertKey]) return null;
+
+      return (
+        <div key={index} className="card" style={{
+          marginBottom: '10px',
+          borderLeft: '4px solid #f59e0b'
+        }}>
+          <strong>{alert.title}</strong>
+          <p style={{ fontSize: '13px' }}>{alert.message}</p>
+          <button onClick={() => handleDismissAlert(alert.type)}>
+            OK
+          </button>
+        </div>
+      );
+    })}
+
+    {/* SUMMARY */}
+    <div className="summary-container">
+      <div className="card">
+        <h4>Total Balance</h4>
+        <h2>₹{chartData?.summary.balance || 0}</h2>
+      </div>
+
+      <div className="card">
+        <h4>Income</h4>
+        <h2>₹{chartData?.summary.totalIncome || 0}</h2>
+      </div>
+
+      <div className="card">
+        <h4>Expense</h4>
+        <h2>₹{chartData?.summary.totalExpense || 0}</h2>
+      </div>
+
+      <div className="card">
+        <h4>Predicted</h4>
+        <h2>₹{insights?.predictedExpense || 0}</h2>
+      </div>
+    </div>
+
+    {/* PIE + BUDGET */}
+    <div className="chart-row">
+      <div className="card">
+        <h3>Category Spending</h3>
+        <div style={{ height: '250px' }}>
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={chartData?.barChartData || []} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border-color)" />
-              <XAxis dataKey="name" stroke="var(--text-muted)" />
-              <YAxis stroke="var(--text-muted)" />
-              <RechartsTooltip formatter={(value) => `₹${value}`} cursor={{fill: 'transparent'}} contentStyle={{ background: 'var(--bg-card)', borderColor: 'var(--border-color)', color: 'var(--text-main)' }}/>
+            <PieChart>
+              <Pie data={chartData?.pieChartData || []} dataKey="value">
+                {(chartData?.pieChartData || []).map((_, i) => (
+                  <Cell key={i} fill={COLORS[i % COLORS.length]} />
+                ))}
+              </Pie>
+              <RechartsTooltip />
               <Legend />
-              <Bar dataKey="income" name="Income" fill="#10b981" radius={[4, 4, 0, 0]} />
-              <Bar dataKey="expense" name="Expense" fill="#ef4444" radius={[4, 4, 0, 0]} />
-            </BarChart>
+            </PieChart>
           </ResponsiveContainer>
         </div>
       </div>
 
-      <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
-        
-        <div className="card" style={{ flex: 1, minWidth: '350px' }}>
-          <h3>📈 Spending Trend (Last 12 Months)</h3>
-          <div style={{ height: '300px', marginTop: '20px' }}>
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={chartData?.trendChartData || []} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border-color)" />
-                <XAxis dataKey="month" stroke="var(--text-muted)" />
-                <YAxis stroke="var(--text-muted)" />
-                <RechartsTooltip formatter={(value) => `₹${value}`} contentStyle={{ background: 'var(--bg-card)', borderColor: 'var(--border-color)', color: 'var(--text-main)' }}/>
-                <Line type="monotone" dataKey="expense" name="Expense" stroke="#8b5cf6" strokeWidth={3} dot={{ r: 4 }} activeDot={{ r: 8 }} />
-              </LineChart>
-            </ResponsiveContainer>
+      <div className="card">
+        <h3>Top Budgets</h3>
+        {budgets.map((b, i) => (
+          <div key={i} style={{ marginBottom: '10px' }}>
+            <strong>{b.category?.name}</strong>
+            <div style={{
+              height: '6px',
+              background: '#eee',
+              marginTop: '5px'
+            }}>
+              <div style={{
+                width: `${(b.spentAmount / b.budgetAmount) * 100}%`,
+                height: '100%',
+                background: '#3b82f6'
+              }}></div>
+            </div>
           </div>
-        </div>
-
-        <div className="card" style={{ flex: 1, minWidth: '350px' }}>
-          <h3>🔮 Expense Forecast (Next Month)</h3>
-          <p style={{fontSize: '13px', color: 'var(--text-muted)', marginBottom: '10px'}}>Based on your average spending over the last 3 months.</p>
-          <div style={{ height: '260px', marginTop: '10px' }}>
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={forecastData} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border-color)" />
-                <XAxis dataKey="name" stroke="var(--text-muted)" />
-                <YAxis stroke="var(--text-muted)" />
-                <RechartsTooltip formatter={(value) => `₹${value}`} contentStyle={{ background: 'var(--bg-card)', borderColor: 'var(--border-color)', color: 'var(--text-main)' }}/>
-                <Legend />
-                <Line type="monotone" dataKey="Actual" stroke="#3b82f6" strokeWidth={3} dot={{ r: 4 }} />
-                <Line type="monotone" dataKey="Forecast" stroke="#f59e0b" strokeWidth={3} strokeDasharray="5 5" dot={{ r: 6 }} />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-
+        ))}
       </div>
     </div>
-  );
+
+    {/* BAR */}
+    <div className="card">
+      <h3>Income vs Expense</h3>
+      <div style={{ height: '300px' }}>
+        <ResponsiveContainer width="100%" height="100%">
+          <BarChart data={chartData?.barChartData || []}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="name" />
+            <YAxis />
+            <RechartsTooltip />
+            <Bar dataKey="income" fill="#10b981" />
+            <Bar dataKey="expense" fill="#ef4444" />
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+    </div>
+
+    {/* LINE + FORECAST */}
+    <div className="chart-row">
+      <div className="card">
+        <h3>Trend</h3>
+        <div style={{ height: '250px' }}>
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={chartData?.trendChartData || []}>
+              <XAxis dataKey="month" />
+              <YAxis />
+              <RechartsTooltip />
+              <Line dataKey="expense" stroke="#8b5cf6" />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+
+      <div className="card">
+        <h3>Forecast</h3>
+        <div style={{ height: '250px' }}>
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={forecastData}>
+              <XAxis dataKey="name" />
+              <YAxis />
+              <RechartsTooltip />
+              <Line dataKey="Actual" stroke="#3b82f6" />
+              <Line dataKey="Forecast" stroke="#f59e0b" />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+    </div>
+
+  </div>
+);
 };
 
 export default Dashboard;
